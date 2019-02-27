@@ -1,0 +1,14 @@
+# Use this to define / create an Anaconda environment
+#
+# Create environment.ylm file based on current active environment (and remove the useless 'prefix' line):
+#   conda env export | grep -v "^prefix: " > environment.yml
+# N.B. Anaconda recommends to create/edit the file by hand because this export might contain superfluous stuff
+#
+# Create an Anaconda environment based on supplied environment.ylm file:
+#   conda env create -f environment.yml
+#
+
+name: boom-chicago
+
+dependencies:
+  - python=3.6
