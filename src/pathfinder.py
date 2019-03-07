@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_distances, euclidean_distances, manhattan_distances
+from face_recognition.api import face_distance
 import json
 
 ALPHA = 0.8
@@ -9,67 +10,115 @@ ALPHA = 0.8
 # counter to check how many computations are needed
 num_sim_steps = 0
 
+enc_start = joblib.load('./data/processed/face_encodings_start.pickle')
+enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
+enc_inter = joblib.load('./data/processed/face_encodings_inter.pickle')
+enc_ugly = joblib.load('./data/processed/face_encodings_ugly.pickle')
 
-def evaluate_step(a, z, k, alpha=0.8):
-    """
-    Evaluate how good k is when wanting to go from a to z
-    What we want to maximise is
-    - high similarity between a & k (so the direct match a-k works)
-    - high similarity between z & k (so it's be easier to go from k to z)
-    """
+# load file names
+img_filenames_start = joblib.load('./data/processed/image_filenames_start.pickle')
+img_filenames_pretty = joblib.load('./data/processed/image_filenames_pretty.pickle')
+img_filenames_inter = joblib.load('./data/processed/image_filenames_inter.pickle')
+img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
+
+
+def extract_face_encoding(enc_ndarray, idx):
+    ''' Extracts face encoding with row index 'idx' from 'enc_ndarray' and reshapes it to a usable size '''
+    return enc_ndarray[idx, :].reshape([1, len(enc_ndarray[idx, :])])
+
+def find_destination_encoding(enc_from, distance_function):
+    ''' Finds the closest match from the photos in the "ugly" dataset with the starting photo and
+    returns its encoding, index and the distance between the two photos '''
+    distance = distance_function(enc_from, enc_ugly)
+    idx_best = np.argmin(distance[0])
+    enc_destination = extract_face_encoding(enc_ugly, idx_best)
+    return enc_destination, distance[0][idx_best], idx_best
+
+def evaluate_step(from_to_score, to_final_score, alpha=0.8):
+    ''' Returns a weighted average of the distance score between the photo from the previous step and one of the photos
+    that can be chosen from in the current step (from_to_score) and the distance score between one of the current options and
+    the destination photo (to_final_score). 'alpha' represents the weighting, with a higher alpha indicating a higher weight of
+    the destination photo. '''
     global num_sim_steps
     num_sim_steps += 1
-    if a == k or z == k:
-        return -1
-    return alpha * sim[a, k] + (1-alpha) * sim[k, z]
+    return alpha * from_to_score + (1-alpha) * to_final_score
 
+def find_next_step_encoding(enc_from, enc_to_ndarray, enc_final, distance_function, alpha):
+    ''' Finds the next photo in the similarity path and returns its encoding (enc_next_step), index (idx_best)
+    and the distance between it and the photo in the previous step.
 
-def find_path(start=0, end=1, num_items=10, num_steps=5, alpha=0.8):
+    enc_from: encoding for the photo in the previous step
+    enc_to_ndarray: ndarray containing all the encodings that can be chosen from in the current step on the rows
+    enc_final: encoding for the final destination of the path
+    distance_function: one of the sklearn functions 'cosine_distances', 'euclidean_distances' or 'manhattan_distances'
+    alpha: weighting between 0 and 1 indicating the importance of the final destination of the path in finding the next photo in the path '''
+
+    distance_from_to = distance_function(enc_from, enc_to_ndarray)[0]
+    distance_to_final = distance_function(enc_final, enc_to_ndarray)[0]
+    num_options = enc_to_ndarray.shape[0]
+
+    weighted_distances = [evaluate_step(distance_from_to[i], distance_to_final[i], alpha) for i in range(num_options)]
+    idx_best = np.argmin(weighted_distances)
+    enc_next_step = extract_face_encoding(enc_to_ndarray, idx_best)
+    return enc_next_step, weighted_distances[idx_best], idx_best
+
+def find_path(starting_point_idx, distance_function, num_steps = 3):
+    ''' Finds the path between a photo from the input dataset with index 'starting_point_idx'
+    distance_function: one of the sklearn functions 'cosine_distances', 'euclidean_distances' or 'manhattan_distances'
+    num_steps: number of photos between the input photo and final destination photo '''
+
+    # Score to keep track of how many computations were made in total
     global num_sim_steps
     num_sim_steps = 0
+    # Let alpha increase equidistantly from 0 to 1 between each of the steps
+    alpha_list = np.arange(0, 1, 1/(num_steps))
 
-    path = [start]
-    similarities = []
-    for step in range(num_steps):
-        current = path[-1]
-        candidates = [i for i in range(num_items) if i not in path + [end]]
-        idx_best = np.argmax([evaluate_step(current, end, c, alpha) for c in candidates])
-        path.append(candidates[idx_best])
-        similarities.append(sim[current, candidates[idx_best]])
-    path.append(end)
+    # Extract encoding for starting point
+    enc_from = extract_face_encoding(enc_start, 11)
+    # Find encoding for best destination
+    enc_final, total_distance, destination_idx = find_destination_encoding(enc_from, distance_function)
+    # Manual selection of destination photo
+    # enc_final, total_distance, destination_idx = extract_face_encoding(enc_ugly, 7), 1, 7
+
+    distances = []
+    steps_idxs = []
+    for i in range(num_steps):
+        alpha = alpha_list[i]
+        if i == 0:
+            enc_to_ndarray = enc_pretty
+        elif i == 1:
+            enc_to_ndarray = enc_inter
+        elif i >= 2:
+            # Remove encodings of photos that were already used from the selection pool
+            enc_to_ndarray = np.vstack([enc_to_ndarray[:end_idx, :] , enc_to_ndarray[end_idx+1:, :]])
+
+        # Get encoding to use in the next round
+        enc_from, distance, end_idx = find_next_step_encoding(enc_from, enc_to_ndarray, enc_final, distance_function, alpha)
+        # Store obtained results
+        distances.append(distance)
+        steps_idxs.append(end_idx)
+
+    # Photo filenames per step for respective datasets
+    path = [img_filenames_start[starting_point_idx]]
+    for i in range(num_steps):
+        if i == 0:
+            path += [img_filenames_pretty[steps_idxs[i]]]
+        elif i >= 1:
+            path += [img_filenames_inter[steps_idxs[i]]]
+    path += [img_filenames_ugly[destination_idx]]
 
     print(path)
     print(f'{num_sim_steps} steps taken')
-    print(f'Total similarity start to end: {sim[start, end]}')
-    print(f'Mean similarity: {np.mean(similarities)}')
-    print(f'Lowest similarity: {np.min(similarities)}')
-    return path, similarities
+    print(f'Distance from start to end: {total_distance}')
+    print(f'Mean distance: {np.mean(distances)}')
+    print(f'Highest distance: {np.max(distances)}')
+    return path, distances
 
+# ----------------------------------------------------------------------------------------------------------------------------------
 
-enc = joblib.load('./data/processed/face_encodings.pickle')
-
-sim = cosine_similarity(enc, enc)
-
-sim.shape
-
-
-# suppose this is a N x N matrix of similarities (pre-computed)
-# yes it should be symmetrical but it doesn't matter 'cause we only lookup via the same indices
-#sim = np.random.rand(NUM_ITEMS, NUM_ITEMS)
-
-num_items = sim.shape[0]
-path, similarities = find_path(start=0, end=5730, num_items=num_items, num_steps=5, alpha=ALPHA)
-
-# load file names
-img_filenames = joblib.load('./data/processed/image_filenames.pickle')
-
-
-def get_images_from_path(path):
-    path_files = [img_filenames[i] for i in path]
-    return path_files
-
-
-path_images = get_images_from_path(path)
+starting_point_idx = 11
+# Choose distance functions from: cosine_distances, euclidean_distances, manhattan_distances
+path_images, distances = find_path(starting_point_idx, cosine_distances, num_steps=5)
 
 json_string = json.dumps(path_images)
 text = f'var images = {json_string};'

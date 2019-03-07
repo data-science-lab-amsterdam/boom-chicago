@@ -32,20 +32,27 @@ def get_encodings(filenames):
 images_start = list(Path('./data/images_start').glob('*.jpg'))
 images_inter = list(Path('./data/images_intermediate').glob('*.jpg'))
 images_pretty = list(Path('./data/images_end_pretty').glob('*.jpg'))
+images_ugly = list(Path('./data/images_end_ugly').glob('*.jpg'))
 
-img_filenames = list(map(str, images_start + images_inter + images_pretty))
+img_filenames_start = list(map(str, images_start))
+img_filenames_inter = list(map(str, images_inter))
+img_filenames_pretty = list(map(str, images_pretty))
+img_filenames_ugly = list(map(str, images_ugly))
 
 encodings_start = get_encodings(images_start)
 encodings_inter = get_encodings(images_inter)
 encodings_pretty = get_encodings(images_pretty)
-
-all = np.vstack([encodings_start, encodings_inter, encodings_pretty])
-
-all.shape
+encodings_ugly = get_encodings(images_ugly)
 
 # save to disk
-joblib.dump(img_filenames, './data/processed/image_filenames.pickle')
-joblib.dump(all, './data/processed/face_encodings.pickle')
+joblib.dump(img_filenames_start, './data/processed/image_filenames_start.pickle')
+joblib.dump(img_filenames_inter, './data/processed/image_filenames_inter.pickle')
+joblib.dump(img_filenames_pretty, './data/processed/image_filenames_pretty.pickle')
+joblib.dump(img_filenames_ugly, './data/processed/image_filenames_ugly.pickle')
+joblib.dump(encodings_start, './data/processed/face_encodings_start.pickle')
+joblib.dump(encodings_inter, './data/processed/face_encodings_inter.pickle')
+joblib.dump(encodings_pretty, './data/processed/face_encodings_pretty.pickle')
+joblib.dump(encodings_ugly, './data/processed/face_encodings_ugly.pickle')
 
 
 
