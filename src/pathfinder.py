@@ -71,5 +71,8 @@ def get_images_from_path(path):
 
 path_images = get_images_from_path(path)
 
-with open('./src/www/path.json', 'w') as f:
-    json.dump(path_images, f)
+json_string = json.dumps(path_images)
+text = f'var images = {json_string};'
+
+with open('./src/www/path.js', 'w') as f:
+    f.write(text)
