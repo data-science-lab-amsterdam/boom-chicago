@@ -13,9 +13,11 @@
         function init()
         {
             var html = '';
+            var images = data['path'];
             for (var i=0; i<images.length; i++) {
                 html += '<img src="../../'+images[i]+'">';
             }
+            html += '<p>Distances: '+data['distances'].join(', ')+'</p>';
             document.getElementById('container').innerHTML = html;
         }
 

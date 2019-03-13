@@ -129,6 +129,14 @@ def render_images(num_per_row=6):
         html.Div(className=f'columns is-{num_per_row} has-text-centered', children=row_elements) for row_elements in elements
     ]
 
+def render_images2():
+    imgs = get_start_images()
+    options = [{
+        'label': name,
+        'value': f'<img src="/images/{url}">'
+    } for url, name in imgs]
+    return dcc.RadioItems(id='input-image', options=options)
+
 
 app = dash.Dash()
 #app.config['suppress_callback_exceptions'] = True
@@ -138,16 +146,16 @@ app.scripts.config.serve_locally = True
 app.layout = html.Div([
 
     # start images
-    html.Div(className='container is-fluid', children=render_images(6)),
+    html.Div(className='container is-fluid', children=render_images2()),
     # Hidden div to store selected image
-    html.Div(id='selected-image', style={'display': 'none'}),
+    html.Div(id='selected-image', style={'display': 'none'}, accessKey=''),
 
     # button
     html.Div(className='container is-fluid', children=[
         bulma_center(html.Button(id="btn-go", className="button is-success", n_clicks=0, children="Start matching!"))
     ]),
 
-    html.Div(id='output-hidden-state', accessKey='{}')
+    html.Div(id='result-container', accessKey='{}'),
 
     # footer
     html.Footer(className="footer", children=[
@@ -171,11 +179,13 @@ def serve_images(path):
 @app.callback(
     Output('result-container', 'accessKey'),
     [Input('btn-go', 'n_clicks')],
-    [State('selected-image', 'children')]
+    [State('selected-image', 'accessKey')]
 )
 def start(n_clicks, input_data):
     if n_clicks is None or n_clicks == 0:
         return ''
+    print(n_clicks)
+    print(input_data)
     dat_in = json.loads(input_data)
     image_path = dat_in['image']
 

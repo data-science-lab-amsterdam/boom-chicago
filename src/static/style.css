@@ -1,0 +1,12 @@
+
+div.container,
+div.columns {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+figcaption {
+    font-size: 80%;
+    font-weight: bold;
+    overflow-x: visible;
+}

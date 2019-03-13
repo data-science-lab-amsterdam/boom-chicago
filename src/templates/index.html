@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+    <script type="text/javascript">
+        var starting_images = {{ data|tojson|safe }}['starting_images'];
+        console.log(starting_images);
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container is-fluid">
+    <div id="starting-images-container"></div>
+</div>
+
+<div class="container is-fluid">
+    <div id="results-container"></div>
+</div>
+
+</body>
+</html>
