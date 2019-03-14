@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
+    <script type="text/javascript" src="{{ url_for('static', filename='anime.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
     <script type="text/javascript">
         var starting_images = {{ data|tojson|safe }}['starting_images'];
@@ -20,6 +21,7 @@
 </div>
 
 <div class="container is-fluid">
+    <div id="animation-container"></div>
     <div id="results-container"></div>
 </div>
 

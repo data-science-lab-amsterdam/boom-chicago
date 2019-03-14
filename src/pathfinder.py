@@ -103,7 +103,7 @@ class Pathfinder:
         self.op_counter = 0
 
         # Let alpha decrease equidistantly from 1 to 0 between each of the steps
-        alpha_list = np.arange(0, 1, 1 / (num_steps))[::-1]
+        alpha_list = np.arange(0, 1, 1/num_steps)[::-1] + 1/num_steps
 
         enc_from = self.start_enc
         enc_end = self._get_encoding(self.encodings_end, idx_end)

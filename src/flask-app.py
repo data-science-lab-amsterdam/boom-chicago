@@ -44,7 +44,7 @@ def get_pathfinder(distance_func='mixed'):
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-pathfinder = get_pathfinder(distance_func='mixed')
+pathfinder = get_pathfinder(distance_func='cosine')
 
 
 @app.route("/")
