@@ -9,7 +9,11 @@ x_radius_mult_factor = 1.5
 y_radius_top_mult_factor = 2.5
 y_radius_bot_mult_factor = 2
 
-def get_coordinates_for_full_head(top, right, bottom, left, image_width, image_length, midpoint_x, midpoint_y, radius_x, radius_y):
+def get_coordinates_for_full_head(image_width, image_length, midpoint_x, midpoint_y, radius_x, radius_y):
+    ''' Zoom out from face coordinates to show the full head of the person in the picture '''
+
+    global top, right, bottom, left
+
     # Check to what side the midpoints are closest
     midpoint_below_center = image_length - midpoint_y < midpoint_y
     midpoint_right_from_center = image_width - midpoint_x < midpoint_x
@@ -43,11 +47,13 @@ def get_coordinates_for_full_head(top, right, bottom, left, image_width, image_l
             right = round(2 * midpoint_x)
         else:
             right = round(midpoint_x + x_radius_mult_factor * radius_x)
-    return top, right, bottom, left
 
-def resize_to_ratio(top, right, bottom, left, image_width, image_length):
+def resize_to_ratio(image_width, image_length):
+    ''' Resize the image to the ratio in 'x_over_y' '''
+
+    global top, right, bottom, left
     
-    # Resize to 2:3
+    # Enlarge dimension (x or y) that is smaller than it is supposed to be, if possible
     if right - left < (bottom - top) * x_over_y:
         diff = (bottom - top) * x_over_y - (right - left)
         right = min(right + round(diff / 2), image_width)
@@ -56,28 +62,30 @@ def resize_to_ratio(top, right, bottom, left, image_width, image_length):
         diff = (right - left) - (bottom - top) * x_over_y
         bottom = min(bottom + round(diff / 2), image_length)
         top = max(top - round(diff / 2), 0)
-    return top, right, bottom, left
 
 def main(image_dir):
 
     image = face_recognition.load_image_file(image_dir)
     image_length, image_width = image.shape[:2]
 
+    # Find the location of each face in this image
     face_locations = face_recognition.face_locations(image)
 
     for face_location in face_locations[:1]:
 
-        # Print the location of each face in this image
+        # Face coordinates
+        global top, right, bottom, left
         top, right, bottom, left = face_location
         midpoint_x = (right + left)/2
         midpoint_y = (top + bottom)/2
         radius_x = right - midpoint_x
         radius_y = bottom - midpoint_y
 
-        top, right, bottom, left = get_coordinates_for_full_head(top, right, bottom, left, image_width, image_length, midpoint_x, midpoint_y, radius_x, radius_y)
-        top, right, bottom, left = resize_to_ratio(top, right, bottom, left, image_width, image_length)
+        # Standardize image
+        get_coordinates_for_full_head(image_width, image_length, midpoint_x, midpoint_y, radius_x, radius_y)
+        resize_to_ratio(image_width, image_length)
 
-        # You can access the actual face itself like this:
+        # Resize image and save it
         face_image = image[top:bottom, left:right]
         pil_image = Image.fromarray(face_image)
         # pil_image.show()
@@ -90,6 +98,6 @@ images_list = os.listdir(images_dir)
 images_list = [image for image in images_list if not image.startswith('.DS')]
 
 # Run script (I'm not familiar with the 'if name == main' stuff yet)
-for image_filename in images_list:
+for image_filename in images_list[:6]:
     image_dir = images_dir + image_filename
     main(image_dir)
