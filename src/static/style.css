@@ -1,3 +1,9 @@
+.image {
+    margin: 0 auto;
+}
+.file.is-boxed .file-label {
+    margin: 0 auto;
+}
 
 div.container,
 div.columns {

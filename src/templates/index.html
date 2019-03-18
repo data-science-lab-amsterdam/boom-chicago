@@ -6,24 +6,47 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='anime.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
-    <script type="text/javascript">
-        var starting_images = {{ data|tojson|safe }}['starting_images'];
-        console.log(starting_images);
-    </script>
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="container is-fluid">
-    <div id="starting-images-container"></div>
-</div>
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="column is-4 is-offset-4">
+                    <h3 class="title has-text-grey">Welcome at Boom Chicago!</h3>
+                    <p class="subtitle has-text-grey">Set up an account. Login with Facebook an option. The show would like their basic public information from Facebook.</p>
+                    <div class="box">
+                        <form action="/landing">
+                            <div class="field">
+                                <label class="label">What date are you coming to Boom Chicago? </label>
+                                <div class="control">
+                                    <input class="input is-large" type="date" placeholder="DD-MM-YYYY">
+                                </div>
+                            </div>
 
-<div class="container is-fluid">
-    <div id="animation-container"></div>
-    <div id="results-container"></div>
-</div>
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="email" placeholder="Your Email" autofocus="">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="password" placeholder="Your Password">
+                                </div>
+                            </div>
+
+                            <button class="button is-block is-info is-large is-fullwidth">Register</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 </body>
 </html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='anime.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script>
+
+    function uploadFile(myFile) {
+        var file = myFile.files[0];
+        var filename = file.name;
+        $("#filename-label").html(filename);
+        photo_submitted = true;
+    }
+
+
+
+    </script>
+
+</head>
+<body>
+
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="column is-8 is-offset-2">
+                    <h3 class="title has-text-grey">Boom Chicago</h3>
+                    <p class="subtitle has-text-grey">Great. Our show is all about Artificial Intelligence and we’d like to show you where AI is today. Upload a picture here where you are the only person in the photo (or the obviously main and central person.</p>
+                    <p class="subtitle has-text-grey">We also ask you to submit the link to your LinkedIn profile. Our AI will then use your profile plus things it can find on the web to make a personality profile of you. This takes about an hour and is included in your ticket price. Be prepared to be impressed.
+                        In one of the scenes in our show, we will demonstrate that there are no ‘right’ answers with AI. It all depends how you program it. We will take guest photos and analyse their face and tell them which celebrity they most resemble. We will give you the ‘path’ the AI took to get there. It is a nice (free) souvenir.
+                    </p>
+                </div>
+                <div class="column is-4 is-offset-4">
+                    <div class="box">
+                        <form action="/show-path" id="uploadForm">
+                            <div class="field">
+                                <input class="input" type="text" placeholder="Your LinkedIn profile">
+                            </div>
+
+                            <div class="field">
+                                <div class="file has-name is-boxed">
+                                    <label class="file-label">
+                                        <input class="file-input" type="file" name="photo" onchange="uploadFile(this)">
+                                        <span class="file-cta">
+                                            <span class="file-icon">
+                                                <i class="fas fa-upload"></i>
+                                            </span>
+                                            <span class="file-label">
+                                                Choose a file…
+                                            </span>
+                                        </span>
+                                        <span class="file-name">
+                                            <center id="filename-label">No file uploaded</center>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="field">
+
+                                <label class="checkbox">
+                                    <input type="checkbox">
+                                    I agree to the <a href="#">terms and conditions</a>
+                                </label>
+
+                            </div>
+
+                            <button class="button is-block is-info is-large is-fullwidth">Upload my picture</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

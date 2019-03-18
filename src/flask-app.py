@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, send_from_directory, request
+from flask import Flask, render_template, url_for, send_from_directory, request, redirect, session
 from pathlib import Path
 from sklearn.externals import joblib
 import json
@@ -48,15 +48,35 @@ pathfinder = get_pathfinder(distance_func='cosine')
 
 
 @app.route("/")
+def register():
+    """
+    Render the registration page
+    """
+    return render_template('index.html')
+
+@app.route("/landing")
 def home():
     """
-    Render the homepage and pass along starting images
+    Render the admin page and pass along starting images
     """
     data = {
         'starting_images': [item for item in get_start_images()]
     }
-    return render_template('index.html', data=data)
+    return render_template('landing.html', data=data)
 
+@app.route("/upload")
+def upload():
+    """
+    Render the page where the user can upload his photo
+    """
+    return render_template('upload.html')
+
+@app.route("/show-path")
+def show_path():
+    data = {
+        'image': get_start_images()[0]
+    }
+    return render_template('show-path.html', data=data)
 
 @app.route('/images/<path:path>')
 def serve_images(path):

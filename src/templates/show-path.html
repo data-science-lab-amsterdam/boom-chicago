@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='anime.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+    <script type="text/javascript">
+        var image = {{ data|tojson|safe }}['image'];
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script>
+    $().ready(function() {
+        displayPath();
+    });
+
+    function displayPath() {
+        selectImage(image['url']);
+    }
+    </script>
+</head>
+<body>
+
+<div class="container is-fluid">
+    <a href="/upload">Upload new picture</a><br />
+
+</div>
+
+<div class="container is-fluid">
+    <div id="animation-container"></div>
+    <div id="results-container"></div>
+</div>
+
+</body>
+</html>
