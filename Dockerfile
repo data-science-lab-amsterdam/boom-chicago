@@ -11,8 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 
-EXPOSE 5000
+EXPOSE 8000
 
 # start flask app
-ENTRYPOINT ["python"]
-CMD ["src/flask-app.py"]
+#ENTRYPOINT ["python"]
+#CMD ["src/app.py"]
+CMD gunicorn -b :8000 src.app:app

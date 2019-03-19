@@ -3,7 +3,8 @@ from pathlib import Path
 from sklearn.externals import joblib
 import json
 import logging
-
+import sys
+sys.path.append('./src')
 from pathfinder import Pathfinder
 
 
@@ -11,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def get_start_images():
-    files = Path('./data/images_start').glob('*')
+    files = Path('./storage_mount/images_start').glob('*')
 
     def _get_name(path):
         return Path(path).name.split("-")[0]
@@ -63,7 +64,7 @@ def serve_images(path):
     """
     Pass local images to the web server
     """
-    return send_from_directory(directory=Path.cwd() / 'data', filename=path)
+    return send_from_directory(directory=Path.cwd() / 'storage_mount', filename=path)
 
 
 @app.route('/get_results', methods=['GET'])
@@ -77,17 +78,10 @@ def get_results():
     idx_start = pathfinder.get_start_image_index(image_path)
     path, distances = pathfinder.find_path_from_start(idx_start=idx_start, mode='closest', num_steps=5)
 
-    # data = {
-    #     'path': [
-    #         "images_start/Demi-2-300x300.jpg", "images_intermediate/Elizabeth_Berkeley_0001.jpg",
-    #         "images_intermediate/Mona_Rishmawi_0001.jpg", "images_intermediate/Alexandra_Pelosi_0001.jpg",
-    #         "images_intermediate/Catherine_Donkers_0001.jpg", "images_intermediate/Erin_Runnion_0001.jpg",
-    #         "images_intermediate/Xiang_Huaicheng_0001.jpg"
-    #     ],
-    #     'similarities': [1, 2, 3, 4, 5, 6]
-    # }
+    path = [p.replace('storage_mount/', '') for p in path]
+
     data = {
-        'path': [p.replace('data/', '') for p in path],
+        'path': path,
         'distances': distances
     }
     return json.dumps(data)

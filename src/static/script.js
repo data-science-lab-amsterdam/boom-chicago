@@ -17,65 +17,62 @@ var handleResults = function(response)
         console.log('empty response... returning false');
         return false;
     }
-    //showStaticPath(data);
-    showAnimation(data);
+
+    var delay = 1000;
+
+    showDynamicPath(data, delay);
+
+    window.setTimeout(function() {
+        hideDynamicPath();
+        showStaticPath(data);
+    }, (data['path'].length+1) * delay);
 }
 
-var showAnimation = function(data)
+var showDynamicPath = function(data, delay)
 {
     var path_html = data['path'].map(function(img_url) {
-        return '<img src="/images/'+img_url+'">';
+        return '<img src="/images/'+img_url+'" class="inactive">';
     }).join(' ');
 
+    document.getElementById('animation-container').style.height = '200px';
     document.getElementById('animation-container').innerHTML = path_html;
-    /*
-    document.querySelectorAll("#animation-container > img:first-child")[0].className = 'opaque';
-    for (var i=0; i<data['path'].length; i++) {
-        window.setTimeout(function() {
-            document.querySelectorAll("#animation-container > img:nth-child("+i+")")[0].className = '';
-            document.querySelectorAll("#animation-container > img:nth-child("+(i+1)+")")[0].className = 'opaque';
-        }, (i+1)*1000);
-    }
-    */
-    document.querySelector("#animation-container > img:first-child").className = 'opaque';
+    document.querySelector("#animation-container > img:first-child").className = 'is-active';
 
-    var delay = 2000;
     window.setTimeout(function() {
         switchToNextImage(2, data['path'].length, delay)
     }, delay);
-    /*
-    for (var i=1; i<data['path'].length-1; i++) {
-        var qs1 = "#animation-container > img:nth-child("+i+")";
-        var qs2 = "#animation-container > img:nth-child("+(i+1)+")";
-        window.setTimeout(function() {
-            console.log(i);
-            var elm = document.querySelector(qs1);
-            elm.className = '';
-            var elm = document.querySelector(qs2);
-            elm.className = 'opaque';
-        }, (i)*1000);
-    }
-    */
+}
+
+var hideDynamicPath = function()
+{
+    document.getElementById('animation-container').innerHTML = '';
+    document.getElementById('animation-container').style.height = '0px';
 }
 
 var switchToNextImage = function(current_idx, max_idx, delay)
 {
     console.log(current_idx)
-    document.querySelector("#animation-container > img:nth-child("+(current_idx-1)+")").className = '';
-    document.querySelector("#animation-container > img:nth-child("+current_idx+")").className = 'opaque';
+    document.querySelector("#animation-container > img:nth-child("+(current_idx-1)+")").className = 'was-active';
+    document.querySelector("#animation-container > img:nth-child("+current_idx+")").className = 'is-active';
     if (current_idx < max_idx) {
-        window.setTimeout(function() {
+        var todo = function() {
             switchToNextImage(current_idx+1, max_idx, delay)
-        }, delay);
+        }
+    } else {
+        var todo = function() {
+            document.querySelector("#animation-container > img:nth-child("+(current_idx-1)+")").className = 'was-active';
+        }
     }
+    window.setTimeout(todo, delay);
 }
 
 var showStaticPath = function(data)
 {
+    console.log('Showing static path');
     var path_html = '<div class="columns">';
     path_html += data['path'].map(function(img_url) {
         return '<div class="column">' + getImageHtml(img_url) + '</div>';
-    })
+    }).join(' ');
     path_html += '</div>';
 
     var info_html = '<div class="columns">';

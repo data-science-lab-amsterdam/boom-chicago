@@ -13,24 +13,53 @@ figcaption {
 
 #animation-container {
   height:200px;
-  width:200px;
+  width:100%;
   margin:auto;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  -webkit-transition: height 1s ease-in-out;
+  -moz-transition: height 1s ease-in-out;
+  -o-transition: height 1s ease-in-out;
+  transition: height 1s ease-in-out;
 }
 
 #animation-container img {
-  position:absolute;
+  position:relative;
   left:0;
-  -webkit-transition: opacity 1s ease-in-out;
-  -moz-transition: opacity 1s ease-in-out;
-  -o-transition: opacity 1s ease-in-out;
-  transition: opacity 1s ease-in-out;
+  width: 100px;
+  height: 100px;
+
+  -webkit-transition: all 1s ease-in-out;
+  -moz-transition: all 1s ease-in-out;
+  -o-transition: all 1s ease-in-out;
+  transition: all 1s ease-in-out;
   opacity:0;
   -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   filter: alpha(opacity=0);
 }
 
-#animation-container img.opaque {
+#animation-container img.is-active {
+  width: 200px;
+  height: 200px;
   opacity:1;
   -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
   filter: alpha(opacity=1);
+}
+
+#animation-container img.was-active {
+  opacity:1;
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+  filter: alpha(opacity=1);
+}
+
+.vcenter
+
+footer {
+    /*margin-top: 20px;*/
+    background-color: #aaa;
+    height: 100px;
+}
+footer figure img {
+    height: 60px;
 }
