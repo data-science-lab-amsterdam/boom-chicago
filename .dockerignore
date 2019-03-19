@@ -1,0 +1,9 @@
+# exclude images from container, except images needed for the website
+data/images_start/*
+data/images_intermediate/*
+data/images_end_pretty/*
+data/images_end_ugly/*
+
+# other crap
+.git
+.ipynb_checkpoints
