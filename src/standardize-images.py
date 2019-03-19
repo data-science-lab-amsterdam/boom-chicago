@@ -88,6 +88,7 @@ def main(image_dir):
         # Resize image and save it
         face_image = image[top:bottom, left:right]
         pil_image = Image.fromarray(face_image)
+        pil_image.thumbnail((300, 450))
         # pil_image.show()
         pil_image.save('./data/processed/images_end_ugly_cropped/' + image_filename)
 
@@ -98,6 +99,6 @@ images_list = os.listdir(images_dir)
 images_list = [image for image in images_list if not image.startswith('.DS')]
 
 # Run script (I'm not familiar with the 'if name == main' stuff yet)
-for image_filename in images_list[:6]:
+for image_filename in images_list:
     image_dir = images_dir + image_filename
     main(image_dir)
