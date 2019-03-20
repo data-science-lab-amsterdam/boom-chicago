@@ -4,6 +4,9 @@ data/images_intermediate/*
 data/images_end_pretty/*
 data/images_end_ugly/*
 
+# storage mount
+storage_mount/*
+
 # other crap
 .git
 .ipynb_checkpoints
