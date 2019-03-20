@@ -11,6 +11,10 @@ from pathfinder import Pathfinder
 logging.basicConfig(level=logging.INFO)
 
 
+PATHFINDER_DISTANCE_FUNC = 'mixed'
+PATHFINDER_END_MODE = 'closest'
+
+
 def get_start_images():
     files = Path('./storage_mount/images_start').glob('*')
 
@@ -23,7 +27,7 @@ def get_start_images():
     return [{'url': _get_subpath(filename), 'name': _get_name(filename)} for filename in files]
 
 
-def get_pathfinder(distance_func='mixed'):
+def get_pathfinder(distance_func='mixed', end='ugly'):
     # load face encodings
     enc_start = joblib.load('./data/processed/face_encodings_start.pickle')
     enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
@@ -36,8 +40,12 @@ def get_pathfinder(distance_func='mixed'):
     img_filenames_inter = joblib.load('./data/processed/image_filenames_inter.pickle')
     img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
 
-    pf = Pathfinder(enc_start, enc_inter, enc_pretty,
-                    img_filenames_start, img_filenames_inter, img_filenames_pretty,
+    pf = Pathfinder(enc_start,
+                    enc_inter,
+                    (enc_pretty if end == 'pretty' else enc_ugly),
+                    img_filenames_start,
+                    img_filenames_inter,
+                    (img_filenames_pretty if end == 'pretty' else img_filenames_ugly),
                     distance_func
                     )
     return pf
@@ -45,7 +53,8 @@ def get_pathfinder(distance_func='mixed'):
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-pathfinder = get_pathfinder(distance_func='cosine')
+pathfinder_pretty = get_pathfinder(distance_func=PATHFINDER_DISTANCE_FUNC, end='pretty')
+pathfinder_ugly = get_pathfinder(distance_func=PATHFINDER_DISTANCE_FUNC, end='ugly')
 
 
 @app.route("/")
@@ -75,14 +84,22 @@ def get_results():
     image_path = request.args.get('image')
     logging.info(image_path)
 
-    idx_start = pathfinder.get_start_image_index(image_path)
-    path, distances = pathfinder.find_path_from_start(idx_start=idx_start, mode='closest', num_steps=5)
+    idx_start = pathfinder_ugly.get_start_image_index(image_path)
+    ugly_path, ugly_distances = pathfinder_ugly.find_path_from_start(idx_start=idx_start, mode=PATHFINDER_END_MODE, num_steps=5)
+    ugly_path = [p.replace('storage_mount/', '') for p in ugly_path]
 
-    path = [p.replace('storage_mount/', '') for p in path]
+    pretty_path, pretty_distances = pathfinder_pretty.find_path_from_start(idx_start=idx_start, mode=PATHFINDER_END_MODE, num_steps=5)
+    pretty_path = [p.replace('storage_mount/', '') for p in pretty_path]
 
     data = {
-        'path': path,
-        'distances': distances
+        'ugly': {
+            'path': ugly_path,
+            'distances': ugly_distances
+        },
+        'pretty': {
+            'path': pretty_path,
+            'distances': pretty_distances
+        }
     }
     return json.dumps(data)
 

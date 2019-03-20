@@ -1,8 +1,8 @@
 
 div.container,
 div.columns {
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 figcaption {
@@ -53,13 +53,18 @@ figcaption {
   filter: alpha(opacity=1);
 }
 
-.vcenter
+#results-container-pretty {
+    margin-bottom: 50px;
+}
 
 footer {
-    /*margin-top: 20px;*/
-    background-color: #aaa;
+    margin-top: 20px;
     height: 100px;
 }
-footer figure img {
+footer div.column {
+    background-color: #eee;
+}
+footer .image img {
     height: 60px;
+    width: auto;
 }

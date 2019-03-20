@@ -2,16 +2,18 @@ import face_recognition
 import os
 from PIL import Image
 
+
 # Image proportions
-x_over_y = 2/3
+#x_over_y = 2/3
+x_over_y = 1/1
 
 x_radius_mult_factor = 1.5
 y_radius_top_mult_factor = 2.5
 y_radius_bot_mult_factor = 2
 
-def get_coordinates_for_full_head(image_width, image_length, midpoint_x, midpoint_y, radius_x, radius_y):
-    ''' Zoom out from face coordinates to show the full head of the person in the picture '''
 
+def get_coordinates_for_full_head(image_width, image_length, midpoint_x, midpoint_y, radius_x, radius_y):
+    """ Zoom out from face coordinates to show the full head of the person in the picture """
     global top, right, bottom, left
 
     # Check to what side the midpoints are closest
@@ -48,9 +50,9 @@ def get_coordinates_for_full_head(image_width, image_length, midpoint_x, midpoin
         else:
             right = round(midpoint_x + x_radius_mult_factor * radius_x)
 
-def resize_to_ratio(image_width, image_length):
-    ''' Resize the image to the ratio in 'x_over_y' '''
 
+def resize_to_ratio(image_width, image_length):
+    """ Resize the image to the ratio in 'x_over_y' """
     global top, right, bottom, left
     
     # Enlarge dimension (x or y) that is smaller than it is supposed to be, if possible
@@ -63,7 +65,8 @@ def resize_to_ratio(image_width, image_length):
         bottom = min(bottom + round(diff / 2), image_length)
         top = max(top - round(diff / 2), 0)
 
-def main(image_dir):
+
+def main(image_dir, output_dir):
 
     image = face_recognition.load_image_file(image_dir)
     image_length, image_width = image.shape[:2]
@@ -89,15 +92,30 @@ def main(image_dir):
         face_image = image[top:bottom, left:right]
         pil_image = Image.fromarray(face_image)
         # pil_image.show()
-        pil_image.save('./data/processed/images_end_ugly_cropped/' + image_filename)
+        pil_image.save(output_dir + image_filename)
 
 # ------------------------------------------------------------------------------------------------------------------------
 
-images_dir = './data/images_end_ugly/'
+
+# ugly
+images_dir = './storage_mount/images_end_ugly/'
+output_dir = './storage_mount/images_end_ugly_cropped/'
 images_list = os.listdir(images_dir)
 images_list = [image for image in images_list if not image.startswith('.DS')]
 
 # Run script (I'm not familiar with the 'if name == main' stuff yet)
-for image_filename in images_list[:6]:
+for image_filename in images_list:
     image_dir = images_dir + image_filename
-    main(image_dir)
+    main(image_dir, output_dir)
+
+
+# pretty
+images_dir = './storage_mount/images_end_pretty/'
+output_dir = './storage_mount/images_end_pretty_cropped/'
+images_list = os.listdir(images_dir)
+images_list = [image for image in images_list if not image.startswith('.DS')]
+
+# Run script (I'm not familiar with the 'if name == main' stuff yet)
+for image_filename in images_list:
+    image_dir = images_dir + image_filename
+    main(image_dir, output_dir)

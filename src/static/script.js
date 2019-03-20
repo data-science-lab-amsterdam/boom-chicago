@@ -13,19 +13,27 @@ var handleResults = function(response)
 {
     console.log(response);
     var data = JSON.parse(response);
-    if (typeof(data) != 'object' || !('path' in data) ) {
+    if (typeof(data) != 'object' || !('pretty' in data) ) {
         console.log('empty response... returning false');
         return false;
     }
+    showResults(data, 'ugly');
+}
 
+var showResults = function(data, key)
+{
     var delay = 1000;
 
-    showDynamicPath(data, delay);
+    showDynamicPath(data[key], delay);
 
     window.setTimeout(function() {
         hideDynamicPath();
-        showStaticPath(data);
-    }, (data['path'].length+1) * delay);
+        showStaticPath(data[key], key);
+        if (key == 'ugly') {
+            // after the ugly results, also show the pretty results
+            showResults(data, 'pretty');
+        }
+    }, (data[key]['path'].length+1) * delay);
 }
 
 var showDynamicPath = function(data, delay)
@@ -51,7 +59,6 @@ var hideDynamicPath = function()
 
 var switchToNextImage = function(current_idx, max_idx, delay)
 {
-    console.log(current_idx)
     document.querySelector("#animation-container > img:nth-child("+(current_idx-1)+")").className = 'was-active';
     document.querySelector("#animation-container > img:nth-child("+current_idx+")").className = 'is-active';
     if (current_idx < max_idx) {
@@ -66,7 +73,7 @@ var switchToNextImage = function(current_idx, max_idx, delay)
     window.setTimeout(todo, delay);
 }
 
-var showStaticPath = function(data)
+var showStaticPath = function(data, key)
 {
     console.log('Showing static path');
     var path_html = '<div class="columns">';
@@ -83,7 +90,7 @@ var showStaticPath = function(data)
     info_html += '<div class="column"></div>';  // add dummy column
     info_html += '</div>';
 
-    document.getElementById('results-container').innerHTML = path_html + info_html;
+    document.getElementById('results-container-'+key).innerHTML = path_html /*+ info_html*/;
 }
 
 var getRequest = function(url, callback)
@@ -100,6 +107,11 @@ var getRequest = function(url, callback)
 
 var selectImage = function(img_url)
 {
+    // clear existing results
+    document.getElementById('results-container-ugly').innerHTML = '<img src="/static/preloader.gif">'
+    document.getElementById('results-container-pretty').innerHTML = '<img src="/static/preloader.gif">'
+
+    // request new results
     var req_url = '/get_results?image=' + encodeURIComponent(img_url);
     console.log('requesting results for image: '+img_url);
     getRequest(req_url, handleResults)

@@ -28,17 +28,17 @@ def get_encodings(filenames):
     return encodings
 
 
-def get_files(dir, patterns):
+def get_files(path, patterns):
     files = []
     for p in patterns:
-        files.extend(Path(dir).glob(p))
+        files.extend(Path(path).glob(p))
     return files
 
 
 images_start = list(get_files('./storage_mount/images_start', ['*.jpg', '*.jpeg', '*.png']))
 images_inter = list(get_files('./storage_mount/images_intermediate', ['*.jpg', '*.jpeg', '*.png']))
-images_pretty = list(get_files('./storage_mount/images_end_pretty', ['*.jpg', '*.jpeg', '*.png']))
-images_ugly = list(get_files('./storage_mount/images_end_ugly', ['*.jpg', '*.jpeg', '*.png']))
+images_pretty = list(get_files('./storage_mount/images_end_pretty_cropped', ['*.jpg', '*.jpeg', '*.png']))
+images_ugly = list(get_files('./storage_mount/images_end_ugly_cropped', ['*.jpg', '*.jpeg', '*.png']))
 
 img_filenames_start = list(map(str, images_start))
 img_filenames_inter = list(map(str, images_inter))

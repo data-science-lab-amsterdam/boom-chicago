@@ -31,7 +31,7 @@ class Pathfinder:
         self.start_enc = None
 
     def get_start_image_index(self, filename):
-        full_filename = 'data/' + filename
+        full_filename = 'storage_mount/' + filename
         return self.filenames_start.index(full_filename)
 
     def _set_start(self, idx):
@@ -57,6 +57,11 @@ class Pathfinder:
         the destination photo. """
         self.op_counter += 1
         return alpha * from_to_score + (1 - alpha) * to_final_score
+
+    @staticmethod
+    def _evaluate_path(distances, alpha=0.8):
+        cost = alpha * np.mean(distances) + (1-alpha) * np.max(distances)
+        return cost
 
     def _find_next_step(self, enc_from, enc_end, blacklist, alpha):
         """ Finds the next photo in the similarity path and returns its encoding (enc_next_step), index (idx_best)
@@ -92,7 +97,15 @@ class Pathfinder:
             return self.find_path_from_start_to_end(idx_start, idx_end, num_steps=num_steps)
         elif mode == 'all':
             # try all options for end image
-            pass
+            min_cost = 1000.
+            for idx_end in range(len(self.encodings_end)):
+                path, distances = self.find_path_from_start_to_end(idx_start, idx_end, num_steps=num_steps)
+                cost = self._evaluate_path(distances)
+                if cost < min_cost:
+                    min_cost = cost
+                    best_result = (path, distances)
+
+            return best_result
         else:
             raise ValueError(f'Invalid mode: {mode}')
 
