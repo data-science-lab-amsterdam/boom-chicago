@@ -91,6 +91,7 @@ def main(image_dir, output_dir):
         # Resize image and save it
         face_image = image[top:bottom, left:right]
         pil_image = Image.fromarray(face_image)
+        pil_image.thumbnail((300, 450))
         # pil_image.show()
         pil_image.save(output_dir + image_filename)
 
