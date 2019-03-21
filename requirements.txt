@@ -5,3 +5,4 @@ flask
 face-recognition
 scikit-learn
 gunicorn
+tqdm

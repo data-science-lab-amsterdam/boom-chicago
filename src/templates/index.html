@@ -12,13 +12,16 @@
         console.log(starting_images);
     </script>
 
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="container is-fluid">
-    <div id="starting-images-container"></div>
+<div id="bg-container1">
+    <div class="container is-fluid">
+        <div id="starting-images-container" class="has-text-centered"></div>
+    </div>
 </div>
 
 <div class="container is-fluid">

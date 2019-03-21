@@ -66,7 +66,7 @@ def resize_to_ratio(image_width, image_length):
         top = max(top - round(diff / 2), 0)
 
 
-def main(image_dir, output_dir):
+def main(image_dir, output_dir, image_filename):
 
     image = face_recognition.load_image_file(image_dir)
     image_length, image_width = image.shape[:2]
@@ -95,28 +95,20 @@ def main(image_dir, output_dir):
         # pil_image.show()
         pil_image.save(output_dir + image_filename)
 
-# ------------------------------------------------------------------------------------------------------------------------
+
+def main_loop(images_dir, output_dir):
+    images_list = os.listdir(images_dir)
+    images_list = [image for image in images_list if not image.startswith('.DS')]
+
+    # Run script (I'm not familiar with the 'if name == main' stuff yet)
+    for image_filename in images_list:
+        image_dir = images_dir + image_filename
+        main(image_dir, output_dir, image_filename)
 
 
-# ugly
-images_dir = './storage_mount/images_end_ugly/'
-output_dir = './storage_mount/images_end_ugly_cropped/'
-images_list = os.listdir(images_dir)
-images_list = [image for image in images_list if not image.startswith('.DS')]
+if __name__ == '__main__':
+    # ugly
+    main_loop(images_dir='./storage_mount/images_end_ugly/', output_dir='./storage_mount/images_end_ugly_cropped/')
 
-# Run script (I'm not familiar with the 'if name == main' stuff yet)
-for image_filename in images_list:
-    image_dir = images_dir + image_filename
-    main(image_dir, output_dir)
-
-
-# pretty
-images_dir = './storage_mount/images_end_pretty/'
-output_dir = './storage_mount/images_end_pretty_cropped/'
-images_list = os.listdir(images_dir)
-images_list = [image for image in images_list if not image.startswith('.DS')]
-
-# Run script (I'm not familiar with the 'if name == main' stuff yet)
-for image_filename in images_list:
-    image_dir = images_dir + image_filename
-    main(image_dir, output_dir)
+    # pretty
+    main_loop(images_dir='./storage_mount/images_end_pretty/', output_dir='./storage_mount/images_end_pretty_cropped/')

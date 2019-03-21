@@ -13,9 +13,13 @@ logging.basicConfig(level=logging.INFO)
 
 PATHFINDER_DISTANCE_FUNC = 'mixed'
 PATHFINDER_END_MODE = 'closest'
+PATHFINDER_PATH_LENGTH = 4
 
 
 def get_start_images():
+    """
+    Retrieve path and name of all starting images to choose from
+    """
     files = Path('./storage_mount/images_start').glob('*')
 
     def _get_name(path):
@@ -28,6 +32,9 @@ def get_start_images():
 
 
 def get_pathfinder(distance_func='mixed', end='ugly'):
+    """
+    Initialize a pathfinder using pre-defined image encodings
+    """
     # load face encodings
     enc_start = joblib.load('./data/processed/face_encodings_start.pickle')
     enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
@@ -85,10 +92,18 @@ def get_results():
     logging.info(image_path)
 
     idx_start = pathfinder_ugly.get_start_image_index(image_path)
-    ugly_path, ugly_distances = pathfinder_ugly.find_path_from_start(idx_start=idx_start, mode=PATHFINDER_END_MODE, num_steps=5)
+    ugly_path, ugly_distances = pathfinder_ugly.find_path_from_start(
+        idx_start=idx_start,
+        mode=PATHFINDER_END_MODE,
+        num_steps=PATHFINDER_PATH_LENGTH
+    )
     ugly_path = [p.replace('storage_mount/', '') for p in ugly_path]
 
-    pretty_path, pretty_distances = pathfinder_pretty.find_path_from_start(idx_start=idx_start, mode=PATHFINDER_END_MODE, num_steps=5)
+    pretty_path, pretty_distances = pathfinder_pretty.find_path_from_start(
+        idx_start=idx_start,
+        mode=PATHFINDER_END_MODE,
+        num_steps=PATHFINDER_PATH_LENGTH
+    )
     pretty_path = [p.replace('storage_mount/', '') for p in pretty_path]
 
     data = {
@@ -103,6 +118,16 @@ def get_results():
     }
     return json.dumps(data)
 
+
+@app.route('/update_image_encodings', methods=['GET']):
+def update_image_encodings():
+    import encoder
+    try:
+        encoder.main()
+        return json.dumps(True)
+    except Exception:
+        return False
+    
 
 if __name__ == '__main__':
     app.run()

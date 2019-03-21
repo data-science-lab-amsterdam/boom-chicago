@@ -11,6 +11,10 @@ figcaption {
     overflow-x: visible;
 }
 
+#bg-container1 {
+    background-color: #eee;
+}
+
 #animation-container {
   height:200px;
   width:100%;
