@@ -119,7 +119,7 @@ def get_results():
     return json.dumps(data)
 
 
-@app.route('/update_image_encodings', methods=['GET']):
+@app.route('/update_image_encodings', methods=['GET'])
 def update_image_encodings():
     import encoder
     try:
@@ -127,7 +127,7 @@ def update_image_encodings():
         return json.dumps(True)
     except Exception:
         return False
-    
+
 
 if __name__ == '__main__':
     app.run()
