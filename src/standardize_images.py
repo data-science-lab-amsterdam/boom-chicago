@@ -68,7 +68,7 @@ def resize_to_ratio(image_width, image_length):
 
 def main(image_dir, output_dir, image_filename):
 
-    image = face_recognition.load_image_file(image_dir)
+    image = face_recognition.load_image_file(image_dir + image_filename)
     image_length, image_width = image.shape[:2]
 
     # Find the location of each face in this image
@@ -93,6 +93,7 @@ def main(image_dir, output_dir, image_filename):
         pil_image = Image.fromarray(face_image)
         pil_image.thumbnail((300, 450))
         # pil_image.show()
+        print(output_dir, image_filename)
         pil_image.save(output_dir + image_filename)
 
 
@@ -102,8 +103,7 @@ def main_loop(images_dir, output_dir):
 
     # Run script (I'm not familiar with the 'if name == main' stuff yet)
     for image_filename in images_list:
-        image_dir = images_dir + image_filename
-        main(image_dir, output_dir, image_filename)
+        main(images_dir, output_dir, image_filename)
 
 
 if __name__ == '__main__':

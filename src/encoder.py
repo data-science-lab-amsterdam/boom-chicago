@@ -6,25 +6,29 @@ from sklearn.externals import joblib
 import logging
 
 
-def get_encodings(filenames):
+def get_encoding(filename):
+
+    # load the image
+    img_rgb = face_recognition.load_image_file(filename)
+
+    # detect faces
+    face_locations = face_recognition.face_locations(img_rgb)
+    if not face_locations:
+        logging.error(f'No face found in image {filename}')
+        face_encoding = []
+    else:
+        # get face encoding (of 1st face found in image)
+        face_encoding = face_recognition.face_encodings(img_rgb, known_face_locations=face_locations)[0]
+
+    return face_encoding
+
+
+def get_encodings_ndarray(filenames):
     encodings = np.zeros((len(filenames), 128))  # encodings have size 128
     i = -1
     for filename in tqdm(filenames):  # tqdm displays a progress bar
         i += 1
-        # load the image
-        img_rgb = face_recognition.load_image_file(filename)
-
-        # detect faces
-        face_locations = face_recognition.face_locations(img_rgb)
-        if not face_locations:
-            logging.error(f'No face found in image {filename}')
-            continue
-
-        # get face encoding (of 1st face found in image)
-        face_encoding = face_recognition.face_encodings(img_rgb, known_face_locations=face_locations)[0]
-
-        encodings[i, :] = face_encoding
-
+        encodings[i, :] = get_encoding(filename)
     return encodings
 
 
@@ -36,7 +40,6 @@ def get_files(path, patterns):
     for p in patterns:
         files.extend(Path(path).glob(p))
     return files
-
 
 def main():
     images_start = list(get_files('./storage_mount/images_start', ['*.jpg', '*.jpeg', '*.png']))
