@@ -10,7 +10,7 @@ class Pathfinder:
     def __init__(self, encodings_start, encodings_inter, encodings_end,
                  filenames_start, filenames_inter, filenames_end,
                  distance_func='cosine'):
-        self.op_counter = 0;
+        self.op_counter = 0
         self.encodings_start = encodings_start
         self.encodings_inter = encodings_inter
         self.encodings_end = encodings_end
@@ -86,15 +86,25 @@ class Pathfinder:
             for i in range(num_options)
         ])
 
-        suitable_next_steps_idxs = [idx[0] for idx in np.argwhere(np.logical_and(np.less(distance_from_to_step, distance_to_end),
-                                                                            np.less(distance_step_to_end, distance_to_end)))]
+        suitable_next_steps_idxs = [
+            idx[0] for idx in np.argwhere(
+                np.logical_and(
+                    np.less(distance_from_to_step, distance_to_end),
+                    np.less(distance_step_to_end, distance_to_end)
+                )
+            )
+        ]
 
         if len(suitable_next_steps_idxs):
             if len(suitable_next_steps_idxs) > 1:
-                suitable_next_steps_weighted_distances = [self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha) for i in suitable_next_steps_idxs]
+                suitable_next_steps_weighted_distances = [
+                    self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha)
+                    for i in suitable_next_steps_idxs
+                ]
                 idx_best_from_suitable = np.argmin(suitable_next_steps_weighted_distances)
                 idx_best = suitable_next_steps_idxs[idx_best_from_suitable]
-                logging.info(f'Smallest weighed distance: {suitable_next_steps_weighted_distances[idx_best_from_suitable]}')
+                dist_best = suitable_next_steps_weighted_distances[idx_best_from_suitable]
+                logging.info(f'Smallest weighed distance: {dist_best}')
             else:
                 idx_best = suitable_next_steps_idxs[0]
             enc_next_step = self._get_encoding(self.encodings_inter, idx_best)
@@ -172,7 +182,7 @@ class Pathfinder:
             # find next step
             idx_next, enc_next, distance = self._find_next_step(enc_from, enc_end, blacklist=path_idx, alpha=alpha)
 
-            if idx_next != None:
+            if idx_next is not None:
                 # Store obtained results
                 distances.append(distance)
                 path_idx.append(idx_next)

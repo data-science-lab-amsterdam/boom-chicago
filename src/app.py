@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 PATHFINDER_DISTANCE_FUNC = 'mixed'
 PATHFINDER_END_MODE = 'closest'
-PATHFINDER_PATH_LENGTH = 4
+PATHFINDER_PATH_LENGTH = 6
 
 
 def get_start_images():
@@ -95,14 +95,14 @@ def get_results():
     ugly_path, ugly_distances = pathfinder_ugly.find_path_from_start(
         idx_start=idx_start,
         mode=PATHFINDER_END_MODE,
-        num_steps=PATHFINDER_PATH_LENGTH
+        max_num_steps=PATHFINDER_PATH_LENGTH
     )
     ugly_path = [p.replace('storage_mount/', '') for p in ugly_path]
 
     pretty_path, pretty_distances = pathfinder_pretty.find_path_from_start(
         idx_start=idx_start,
         mode=PATHFINDER_END_MODE,
-        num_steps=PATHFINDER_PATH_LENGTH
+        max_num_steps=PATHFINDER_PATH_LENGTH
     )
     pretty_path = [p.replace('storage_mount/', '') for p in pretty_path]
 

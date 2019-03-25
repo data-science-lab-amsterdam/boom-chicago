@@ -41,6 +41,7 @@ def get_files(path, patterns):
         files.extend(Path(path).glob(p))
     return files
 
+
 def main():
     images_start = list(get_files('./storage_mount/images_start', ['*.jpg', '*.jpeg', '*.png']))
     images_inter = list(get_files('./storage_mount/images_intermediate', ['*.jpg', '*.jpeg', '*.png']))
@@ -52,10 +53,10 @@ def main():
     img_filenames_pretty = list(map(str, images_pretty))
     img_filenames_ugly = list(map(str, images_ugly))
 
-    encodings_start = get_encodings(images_start)
-    encodings_inter = get_encodings(images_inter)
-    encodings_pretty = get_encodings(images_pretty)
-    encodings_ugly = get_encodings(images_ugly)
+    encodings_start = get_encodings_ndarray(images_start)
+    encodings_inter = get_encodings_ndarray(images_inter)
+    encodings_pretty = get_encodings_ndarray(images_pretty)
+    encodings_ugly = get_encodings_ndarray(images_ugly)
 
     # save to disk
     joblib.dump(img_filenames_start, './data/processed/image_filenames_start.pickle')
@@ -70,4 +71,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

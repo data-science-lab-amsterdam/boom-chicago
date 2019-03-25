@@ -5,6 +5,7 @@ from src.standardize_images import main as standardize_image
 from src.encoder import get_encoding
 from src.pathfinder import Pathfinder
 
+
 def main(image_dir, image_filename):
     output_dir = './storage_mount/images_start_cropped/'
     enc_start = get_encoding(image_dir + image_filename)
