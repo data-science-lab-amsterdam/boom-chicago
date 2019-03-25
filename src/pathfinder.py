@@ -73,33 +73,76 @@ class Pathfinder:
         distance_function: one of the sklearn functions 'cosine_distances', 'euclidean_distances' or 'manhattan_distances'
         alpha: weighting between 0 and 1 indicating the importance of the final destination of the path in finding the next photo in the path """
 
+        distance_to_end = self.distance_func(enc_from, enc_end)[0]
+
         distance_from_to_step = self.distance_func(enc_from, self.encodings_inter)[0]
-        tmp = distance_from_to_step[distance_from_to_step > 0.]
-        logging.info(f'Smallest distance: {tmp.min()}')
+        # tmp = distance_from_to_step[distance_from_to_step > 0.]
+        logging.info(f'Smallest distance: {distance_from_to_step.min()}')
         distance_step_to_end = self.distance_func(enc_end, self.encodings_inter)[0]
         num_options = self.encodings_inter.shape[0]
-
-        weighted_distances = [
+        distance_from_to_step = np.array([
             1. if i in blacklist else
-            self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha)
+            distance_from_to_step[i]
             for i in range(num_options)
-        ]
-        logging.info(f'Smallest weighed distance: {min(weighted_distances)}')
+        ])
 
-        idx_best = np.argmin(weighted_distances)
-        enc_next_step = self._get_encoding(self.encodings_inter, idx_best)
-        return idx_best, enc_next_step, distance_from_to_step[idx_best]
+        suitable_next_steps_idxs = [idx[0] for idx in np.argwhere(np.logical_and(np.less(distance_from_to_step, distance_to_end),
+                                                                            np.less(distance_step_to_end, distance_to_end)))]
 
-    def find_path_from_start(self, idx_start, mode='all', num_steps=5):
+        if len(suitable_next_steps_idxs):
+            if len(suitable_next_steps_idxs) > 1:
+                suitable_next_steps_weighted_distances = [self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha) for i in suitable_next_steps_idxs]
+                idx_best_from_suitable = np.argmin(suitable_next_steps_weighted_distances)
+                idx_best = suitable_next_steps_idxs[idx_best_from_suitable]
+                logging.info(f'Smallest weighed distance: {suitable_next_steps_weighted_distances[idx_best_from_suitable]}')
+            else:
+                idx_best = suitable_next_steps_idxs[0]
+            enc_next_step = self._get_encoding(self.encodings_inter, idx_best)
+            distance_best = distance_from_to_step[idx_best]
+        else:
+            idx_best = None
+            enc_next_step = None
+            distance_best = None
+
+        return idx_best, enc_next_step, distance_best
+
+    # def _find_next_step(self, enc_from, enc_end, blacklist, alpha):
+    #     """ Finds the next photo in the similarity path and returns its encoding (enc_next_step), index (idx_best)
+    #     and the distance between it and the photo in the previous step.
+    #
+    #     enc_from: encoding for the photo in the previous step
+    #     enc_to_ndarray: ndarray containing all the encodings that can be chosen from in the current step on the rows
+    #     enc_final: encoding for the final destination of the path
+    #     distance_function: one of the sklearn functions 'cosine_distances', 'euclidean_distances' or 'manhattan_distances'
+    #     alpha: weighting between 0 and 1 indicating the importance of the final destination of the path in finding the next photo in the path """
+    #
+    #     distance_from_to_step = self.distance_func(enc_from, self.encodings_inter)[0]
+    #     tmp = distance_from_to_step[distance_from_to_step > 0.]
+    #     logging.info(f'Smallest distance: {tmp.min()}')
+    #     distance_step_to_end = self.distance_func(enc_end, self.encodings_inter)[0]
+    #     num_options = self.encodings_inter.shape[0]
+    #
+    #     weighted_distances = [
+    #         1. if i in blacklist else
+    #         self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha)
+    #         for i in range(num_options)
+    #     ]
+    #     logging.info(f'Smallest weighed distance: {min(weighted_distances)}')
+    #
+    #     idx_best = np.argmin(weighted_distances)
+    #     enc_next_step = self._get_encoding(self.encodings_inter, idx_best)
+    #     return idx_best, enc_next_step, distance_from_to_step[idx_best]
+
+    def find_path_from_start(self, idx_start, mode='all', max_num_steps=5):
         self._set_start(idx_start)
         if mode == 'closest':
             idx_end, enc_end = self._get_closest_end_encoding()
-            return self.find_path_from_start_to_end(idx_start, idx_end, num_steps=num_steps)
+            return self.find_path_from_start_to_end(idx_start, idx_end, max_num_steps=max_num_steps)
         elif mode == 'all':
             # try all options for end image
             min_cost = 1000.
             for idx_end in range(len(self.encodings_end)):
-                path, distances = self.find_path_from_start_to_end(idx_start, idx_end, num_steps=num_steps)
+                path, distances = self.find_path_from_start_to_end(idx_start, idx_end, max_num_steps=max_num_steps)
                 cost = self._evaluate_path(distances)
                 if cost < min_cost:
                     min_cost = cost
@@ -109,33 +152,38 @@ class Pathfinder:
         else:
             raise ValueError(f'Invalid mode: {mode}')
 
-    def find_path_from_start_to_end(self, idx_start, idx_end, num_steps=5):
+    def find_path_from_start_to_end(self, idx_start, idx_end, max_num_steps=5):
         """ Finds the path between a photo from the input dataset with index 'starting_point_idx'
         distance_function: one of the sklearn functions 'cosine_distances', 'euclidean_distances' or 'manhattan_distances'
-        num_steps: number of photos between the input photo and final destination photo """
+        max_num_steps: maximum number of steps between the input photo and final destination photo """
         self.op_counter = 0
 
         # Let alpha decrease equidistantly from 1 to 0 between each of the steps
-        alpha_list = np.arange(0, 1, 1/num_steps)[::-1] + 1/num_steps
+        alpha_list = np.arange(0, 1, 1/(max_num_steps - 1))[::-1] + 1/(max_num_steps - 1)
 
         enc_from = self.start_enc
         enc_end = self._get_encoding(self.encodings_end, idx_end)
         distances = []
-        path_idx = [idx_start]
-        for i in range(num_steps):
+        path_idx = []
+        for i in range(max_num_steps - 1):
             # update alpha value
             alpha = alpha_list[i]
 
             # find next step
             idx_next, enc_next, distance = self._find_next_step(enc_from, enc_end, blacklist=path_idx, alpha=alpha)
 
-            # Store obtained results
-            distances.append(distance)
-            path_idx.append(idx_next)
+            if idx_next != None:
+                # Store obtained results
+                distances.append(distance)
+                path_idx.append(idx_next)
 
-            # update the current 'from' encoding
-            enc_from = enc_next.copy()
+                # update the current 'from' encoding
+                enc_from = enc_next.copy()
+            else:
+                break
 
+        # Add starting index to start of 'path_idx' (it should not be in the blacklist)
+        path_idx = [idx_start] + path_idx
         # Photo filenames per step for respective datasets
         path_images = []
         for i, value in enumerate(path_idx):
@@ -145,7 +193,10 @@ class Pathfinder:
                 path_images.append(self.filenames_inter[value])
         path_images.append(self.filenames_end[idx_end])
 
-        total_distance = self.distance_func(enc_from, enc_end)
+        total_distance = self.distance_func(enc_from, enc_end)[0]
+        # If starting photo already looks like ending photo
+        if not len(distances):
+            distances.append(total_distance[0])
 
         logging.info(path_images)
         logging.info(f'{self.op_counter} steps taken')
@@ -153,6 +204,53 @@ class Pathfinder:
         logging.info(f'Mean distance: {np.mean(distances)}')
         logging.info(f'Highest distance: {np.max(distances)}')
         return path_images, distances
+
+    # def find_path_from_start_to_end(self, idx_start, idx_end, num_steps=5):
+    #     """ Finds the path between a photo from the input dataset with index 'starting_point_idx'
+    #     distance_function: one of the sklearn functions 'cosine_distances', 'euclidean_distances' or 'manhattan_distances'
+    #     num_steps: number of steps between the input photo and final destination photo """
+    #     self.op_counter = 0
+    #
+    #     # Let alpha decrease equidistantly from 1 to 0 between each of the steps
+    #     alpha_list = np.arange(0, 1, 1/(num_steps - 1))[::-1] + 1/(num_steps - 1)
+    #
+    #     enc_from = self.start_enc
+    #     enc_end = self._get_encoding(self.encodings_end, idx_end)
+    #     distances = []
+    #     path_idx = []
+    #     for i in range(num_steps - 1):
+    #         # update alpha value
+    #         alpha = alpha_list[i]
+    #
+    #         # find next step
+    #         idx_next, enc_next, distance = self._find_next_step(enc_from, enc_end, blacklist=path_idx, alpha=alpha)
+    #
+    #         # Store obtained results
+    #         distances.append(distance)
+    #         path_idx.append(idx_next)
+    #
+    #         # update the current 'from' encoding
+    #         enc_from = enc_next.copy()
+    #
+        # # Add starting index to start of 'path_idx' (it should not be in the blacklist)
+        # path_idx = [idx_start] + path_idx
+        # # Photo filenames per step for respective datasets
+        # path_images = []
+        # for i, value in enumerate(path_idx):
+        #     if i == 0:
+        #         path_images.append(self.filenames_start[value])
+        #     else:
+        #         path_images.append(self.filenames_inter[value])
+        # path_images.append(self.filenames_end[idx_end])
+    #
+    #     total_distance = self.distance_func(enc_from, enc_end)
+    #
+    #     logging.info(path_images)
+    #     logging.info(f'{self.op_counter} steps taken')
+    #     logging.info(f'Distance from start to end: {total_distance}')
+    #     logging.info(f'Mean distance: {np.mean(distances)}')
+    #     logging.info(f'Highest distance: {np.max(distances)}')
+    #     return path_images, distances
 
 
 if __name__ == '__main__':
@@ -172,10 +270,10 @@ if __name__ == '__main__':
 
     pf = Pathfinder(enc_start, enc_inter, enc_pretty,
                     img_filenames_start, img_filenames_inter, img_filenames_pretty,
-                    'cosine'
+                    'mixed'
                     )
 
-    path, distances = pf.find_path_from_start(idx_start=12, mode='closest', num_steps=7)
+    path, distances = pf.find_path_from_start(idx_start=11, mode='closest', max_num_steps=10)
 
     json_string = json.dumps({'path': path, 'distances': distances})
     text = f'var data = {json_string};'
