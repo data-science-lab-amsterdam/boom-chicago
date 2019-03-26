@@ -38,13 +38,16 @@ def get_files(path, patterns):
     """
     files = []
     for p in patterns:
-        files.extend(Path(path).glob(p))
+        files.extend(Path(path).rglob(p))
     return files
 
 
 def main(subset):
     for namepart in subset:
-        images = list(get_files(f'./storage_mount/images_{namepart}', ['*.jpg', '*.jpeg', '*.png']))
+        dirname = f'images_{namepart}'
+        if namepart in ['pretty', 'ugly']:
+            dirname = f'images_end_{namepart}_cropped'
+        images = list(get_files(f'./storage_mount/{dirname}', ['*.jpg', '*.jpeg', '*.png']))
         img_filenames = list(map(str, images))
         encodings = get_encodings_ndarray(images)
         joblib.dump(img_filenames, f'./data/processed/image_filenames_{namepart}.pickle')
