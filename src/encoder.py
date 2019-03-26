@@ -15,7 +15,7 @@ def get_encoding(filename):
     face_locations = face_recognition.face_locations(img_rgb)
     if not face_locations:
         logging.error(f'No face found in image {filename}')
-        face_encoding = []
+        face_encoding = np.zeros(128)
     else:
         # get face encoding (of 1st face found in image)
         face_encoding = face_recognition.face_encodings(img_rgb, known_face_locations=face_locations)[0]
