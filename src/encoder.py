@@ -42,32 +42,14 @@ def get_files(path, patterns):
     return files
 
 
-def main():
-    images_start = list(get_files('./storage_mount/images_start', ['*.jpg', '*.jpeg', '*.png']))
-    images_inter = list(get_files('./storage_mount/images_intermediate', ['*.jpg', '*.jpeg', '*.png']))
-    images_pretty = list(get_files('./storage_mount/images_end_pretty_cropped', ['*.jpg', '*.jpeg', '*.png']))
-    images_ugly = list(get_files('./storage_mount/images_end_ugly_cropped', ['*.jpg', '*.jpeg', '*.png']))
-
-    img_filenames_start = list(map(str, images_start))
-    img_filenames_inter = list(map(str, images_inter))
-    img_filenames_pretty = list(map(str, images_pretty))
-    img_filenames_ugly = list(map(str, images_ugly))
-
-    encodings_start = get_encodings_ndarray(images_start)
-    encodings_inter = get_encodings_ndarray(images_inter)
-    encodings_pretty = get_encodings_ndarray(images_pretty)
-    encodings_ugly = get_encodings_ndarray(images_ugly)
-
-    # save to disk
-    joblib.dump(img_filenames_start, './data/processed/image_filenames_start.pickle')
-    joblib.dump(img_filenames_inter, './data/processed/image_filenames_inter.pickle')
-    joblib.dump(img_filenames_pretty, './data/processed/image_filenames_pretty.pickle')
-    joblib.dump(img_filenames_ugly, './data/processed/image_filenames_ugly.pickle')
-    joblib.dump(encodings_start, './data/processed/face_encodings_start.pickle')
-    joblib.dump(encodings_inter, './data/processed/face_encodings_inter.pickle')
-    joblib.dump(encodings_pretty, './data/processed/face_encodings_pretty.pickle')
-    joblib.dump(encodings_ugly, './data/processed/face_encodings_ugly.pickle')
+def main(subset):
+    for namepart in subset:
+        images = list(get_files(f'./storage_mount/images_{namepart}', ['*.jpg', '*.jpeg', '*.png']))
+        img_filenames = list(map(str, images))
+        encodings = get_encodings_ndarray(images)
+        joblib.dump(img_filenames, f'./data/processed/image_filenames_{namepart}.pickle')
+        joblib.dump(encodings, f'./data/processed/face_encodings_{namepart}.pickle')
 
 
 if __name__ == '__main__':
-    main()
+    main(subset=['start', 'intermediate', 'pretty', 'ugly'])

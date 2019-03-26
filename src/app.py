@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 PATHFINDER_DISTANCE_FUNC = 'mixed'
 PATHFINDER_END_MODE = 'closest'
-PATHFINDER_PATH_LENGTH = 6
+PATHFINDER_PATH_LENGTH = 8
 
 
 def get_start_images():
@@ -38,13 +38,13 @@ def get_pathfinder(distance_func='mixed', end='ugly'):
     # load face encodings
     enc_start = joblib.load('./data/processed/face_encodings_start.pickle')
     enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
-    enc_inter = joblib.load('./data/processed/face_encodings_inter.pickle')
+    enc_inter = joblib.load('./data/processed/face_encodings_intermediate.pickle')
     enc_ugly = joblib.load('./data/processed/face_encodings_ugly.pickle')
 
     # load file names
     img_filenames_start = joblib.load('./data/processed/image_filenames_start.pickle')
     img_filenames_pretty = joblib.load('./data/processed/image_filenames_pretty.pickle')
-    img_filenames_inter = joblib.load('./data/processed/image_filenames_inter.pickle')
+    img_filenames_inter = joblib.load('./data/processed/image_filenames_intermediate.pickle')
     img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
 
     pf = Pathfinder(enc_start,
@@ -123,7 +123,7 @@ def get_results():
 def update_image_encodings():
     import encoder
     try:
-        encoder.main()
+        encoder.main(subset=['start'])
         return json.dumps(True)
     except Exception:
         return False

@@ -16,11 +16,11 @@ def main(image_dir, image_filename):
         standardized_image_dir = output_dir + image_filename
 
         enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
-        enc_inter = joblib.load('./data/processed/face_encodings_inter.pickle')
+        enc_inter = joblib.load('./data/processed/face_encodings_intermediate.pickle')
         enc_ugly = joblib.load('./data/processed/face_encodings_ugly.pickle')
 
         img_filenames_pretty = joblib.load('./data/processed/image_filenames_pretty.pickle')
-        img_filenames_inter = joblib.load('./data/processed/image_filenames_inter.pickle')
+        img_filenames_inter = joblib.load('./data/processed/image_filenames_intermediate.pickle')
         img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
 
         pf = Pathfinder(enc_start, enc_inter, enc_pretty,
@@ -39,4 +39,5 @@ def main(image_dir, image_filename):
     else:
         print('No face found in input image')
 
-main(image_dir = '/Users/gijsromme/Downloads/', image_filename = 'cappy_test.jpg')
+
+main(image_dir='/Users/gijsromme/Downloads/', image_filename='cappy_test.jpg')

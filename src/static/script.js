@@ -22,7 +22,7 @@ var handleResults = function(response)
 
 var showResults = function(data, key)
 {
-    var delay = 1000;
+    var delay = 1500;
 
     showDynamicPath(data[key], delay);
 
@@ -59,7 +59,9 @@ var hideDynamicPath = function()
 
 var switchToNextImage = function(current_idx, max_idx, delay)
 {
-    document.querySelector("#animation-container > img:nth-child("+(current_idx-1)+")").className = 'was-active';
+    if (current_idx >= 3) {
+        document.querySelector("#animation-container > img:nth-child("+(current_idx-2)+")").className = 'was-active';
+    }
     document.querySelector("#animation-container > img:nth-child("+current_idx+")").className = 'is-active';
     if (current_idx < max_idx) {
         var todo = function() {
@@ -67,7 +69,7 @@ var switchToNextImage = function(current_idx, max_idx, delay)
         }
     } else {
         var todo = function() {
-            document.querySelector("#animation-container > img:nth-child("+(current_idx-1)+")").className = 'was-active';
+            document.querySelector("#animation-container > img:nth-child("+(current_idx-2)+")").className = 'was-active';
         }
     }
     window.setTimeout(todo, delay);

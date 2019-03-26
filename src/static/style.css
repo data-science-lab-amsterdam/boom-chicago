@@ -9,6 +9,11 @@ figcaption {
     font-size: 80%;
     font-weight: bold;
     overflow-x: visible;
+    display: none;
+}
+div.column:first-child figcaption,
+div.column:last-child figcaption {
+    display: block;
 }
 
 #bg-container1 {
