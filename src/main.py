@@ -40,4 +40,5 @@ def main(image_dir, image_filename):
         print('No face found in input image')
 
 
-main(image_dir='/Users/gijsromme/Downloads/', image_filename='cappy_test.jpg')
+if __name__ == '__main__':
+    main(image_dir='/Users/gijsromme/Downloads/', image_filename='cappy_test.jpg')

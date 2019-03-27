@@ -55,4 +55,5 @@ def main(subset):
 
 
 if __name__ == '__main__':
-    main(subset=['start', 'intermediate', 'pretty', 'ugly'])
+    #main(subset=['start', 'intermediate', 'pretty', 'ugly'])
+    main(subset=['start', 'pretty', 'ugly'])

@@ -1,9 +1,9 @@
 var getImageHtml = function(url, name)
 {
     var name = name || url.split('/').pop().split('.')[0].replace(/[^A-Za-z]/g, ' ');
-    var html = '<figure class="image is-96x96">'
+    var html = '<figure class="image is-96x96 is-expanded">'
             + '<img src="/images/'+url+'">'
-            + '<figcaption>'+name+'</figcaption>'
+            + '<figcaption><center>'+name+'</center></figcaption>'
             + '</figure>';
     return html;
 }
@@ -119,15 +119,16 @@ var selectImage = function(img_url)
     getRequest(req_url, handleResults)
 }
 
-var init = function()
+var initStartingImages = function()
 {
     var container = document.getElementById('starting-images-container');
-    var html = '<div class="columns">';
+    var html = '<div class="columns is-centered">';
     var num_per_row = Math.ceil(starting_images.length/2);
+
     var i = 0;
     starting_images.forEach(function(item) {
         i += 1;
-        html += '<div class="column">'
+        html += '<div class="column is-mobile">'
             + '<a href="javascript:selectImage(\''+item['url']+'\');">'
             + getImageHtml(item['url'], item['name'])
             + '</a>'
@@ -140,6 +141,3 @@ var init = function()
     container.innerHTML = html;
 }
 
-// there is a problem with this: dash components haven't loaded yet
-window.addEventListener('DOMContentLoaded', init, false);
-//setTimeout(init, 1000);

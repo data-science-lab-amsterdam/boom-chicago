@@ -1,26 +1,40 @@
-from flask import Flask, render_template, url_for, send_from_directory, request
+from flask import Flask, render_template, url_for, send_from_directory, request, redirect, session
 from pathlib import Path
 from sklearn.externals import joblib
 import json
+from werkzeug.utils import secure_filename
 import logging
 import sys
 sys.path.append('./src')
+
 from pathfinder import Pathfinder
+import encoder
+import standardize_images
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-PATHFINDER_DISTANCE_FUNC = 'mixed'
+PATHFINDER_DISTANCE_FUNC = 'cosine'
 PATHFINDER_END_MODE = 'closest'
-PATHFINDER_PATH_LENGTH = 10
+PATHFINDER_PATH_LENGTH = 8
+
+
+def get_files(path, patterns):
+    """
+    Get a list of all filenames in a certain path with allowed extensions
+    """
+    files = []
+    for p in patterns:
+        files.extend(Path(path).rglob(p))
+    return files
 
 
 def get_start_images():
     """
     Retrieve path and name of all starting images to choose from
     """
-    files = Path('./storage_mount/images_start').glob('*')
+    files = get_files('./storage_mount/images_start', ['*.jpg', '*.png', '*.jpeg'])
 
     def _get_name(path):
         return Path(path).name.split("-")[0]
@@ -29,6 +43,10 @@ def get_start_images():
         return '/'.join(str(path).split('/')[1:])
 
     return [{'url': _get_subpath(filename), 'name': _get_name(filename)} for filename in files]
+
+
+def get_uploaded_image(filename):
+    return {'url': "images_start/"+filename, 'name': Path(filename).name.split("-")[0]}
 
 
 def get_pathfinder(distance_func='mixed', end='ugly'):
@@ -58,21 +76,84 @@ def get_pathfinder(distance_func='mixed', end='ugly'):
     return pf
 
 
+def process_image(filename):
+    """
+    Process an uploaded image so it can be used in the app
+    """
+    # crop image
+    logging.info("standardizing image...")
+    standardize_images.main('./storage_mount/images_upload', './storage_mount/images_start', filename)
+
+    # add to encodings & filenames
+    logging.info("refreshing start encodings...")
+    encoder.main(subset=['start'])
+
+    refresh_pathfinders()
+
+
+def refresh_pathfinders():
+    """
+    After encodings & filenames have been updated, the pathfinder needs to refresh them
+    """
+    global pathfinder_pretty, pathfinder_ugly
+    pathfinder_pretty = get_pathfinder(distance_func=PATHFINDER_DISTANCE_FUNC, end='pretty')
+    pathfinder_ugly = get_pathfinder(distance_func=PATHFINDER_DISTANCE_FUNC, end='ugly')
+
+
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+app.config['UPLOAD_FOLDER'] = "./storage_mount/images_upload"
 
 pathfinder_pretty = get_pathfinder(distance_func=PATHFINDER_DISTANCE_FUNC, end='pretty')
 pathfinder_ugly = get_pathfinder(distance_func=PATHFINDER_DISTANCE_FUNC, end='ugly')
 
 
 @app.route("/")
-def home():
+def register():
     """
-    Render the homepage and pass along starting images
+    Render the registration page
+    """
+    return render_template('register.html')
+
+
+@app.route("/admin")
+def admin():
+    """
+    Render the admin page and pass along starting images
     """
     data = {
         'starting_images': [item for item in get_start_images()]
     }
-    return render_template('index.html', data=data)
+    return render_template('admin.html', data=data)
+
+
+@app.route("/upload")
+def upload():
+    """
+    Render the page where the user can upload his photo
+    """
+    return render_template('upload.html')
+
+
+@app.route("/show-path", methods=['POST'])
+def show_path():
+    try:
+        file = request.files['photo']
+        filename = secure_filename(file.filename)
+        logging.info(filename)
+        internal_path = str(Path(app.config['UPLOAD_FOLDER']) / filename)
+        file.save(internal_path)
+
+        process_image(filename)
+
+        data = {
+            'image': get_uploaded_image(filename)
+            # 'image': get_start_images()[0]
+        }
+        return render_template('show-path.html', data=data)
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('upload'), code=406)
 
 
 @app.route('/images/<path:path>')
@@ -121,12 +202,11 @@ def get_results():
 
 @app.route('/update_image_encodings', methods=['GET'])
 def update_image_encodings():
-    import encoder
     try:
         encoder.main(subset=['start'])
         return json.dumps(True)
     except Exception:
-        return False
+        return json.dumps(False)
 
 
 if __name__ == '__main__':

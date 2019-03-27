@@ -1,4 +1,5 @@
 import face_recognition
+from pathlib import Path
 import os
 from PIL import Image
 
@@ -68,7 +69,7 @@ def resize_to_ratio(image_width, image_length):
 
 def main(image_dir, output_dir, image_filename):
 
-    image = face_recognition.load_image_file(image_dir + image_filename)
+    image = face_recognition.load_image_file(Path(image_dir) / image_filename)
     image_length, image_width = image.shape[:2]
 
     # Find the location of each face in this image
@@ -92,9 +93,7 @@ def main(image_dir, output_dir, image_filename):
         face_image = image[top:bottom, left:right]
         pil_image = Image.fromarray(face_image)
         pil_image.thumbnail((300*x_over_y, 300))
-        # pil_image.show()
-        print(output_dir, image_filename)
-        pil_image.save(output_dir + image_filename)
+        pil_image.save(Path(output_dir) / image_filename)
 
 
 def main_loop(images_dir, output_dir):

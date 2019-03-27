@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Good news... Bad news...</title>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='anime.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+    <script type="text/javascript">
+        var starting_images = {{ data|tojson|safe }}['starting_images'];
+        window.addEventListener('DOMContentLoaded', initStartingImages, false);
+    </script>
+
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+
+<div class="container is-fluid">
+    <a href="/upload">Upload new picture</a>
+</div>
+
+<div id="bg-container1">
+    <div class="container is-fluid">
+        <div id="starting-images-container" class="has-text-centered"></div>
+    </div>
+</div>
+
+<div class="container is-fluid">
+    <div id="animation-container" class="has-text-centered"></div>
+    <div id="results-container-ugly" class="results-container"></div>
+    <div id="results-container-pretty" class="results-container"></div>
+</div>
+
+<footer class=footer">
+    <div class="columns vcenter">
+        <div class="column"></div>
+        <div class="column">
+            <figure class="image">
+                <img src="/static/logo-boom-chicago.png">
+            </figure>
+        </div>
+        <div class="column"></div>
+        <div class="column">
+            <figure class="image">
+                <img src="/static/logo-datasciencelab.png">
+            </figure>
+        </div>
+        <div class="column"></div>
+    </div>
+</footer>
+
+</body>
+</html>
