@@ -80,9 +80,16 @@ class Pathfinder:
         logging.info(f'Smallest distance: {distance_from_to_step.min()}')
         distance_step_to_end = self.distance_func(enc_end, self.encodings_inter)[0]
         num_options = self.encodings_inter.shape[0]
+        # set blacklisted items to high distance in order to exclude them
         distance_from_to_step = np.array([
             1. if i in blacklist else
             distance_from_to_step[i]
+            for i in range(num_options)
+        ])
+        # set blacklisted items to high distance in order to exclude them
+        distance_step_to_end = np.array([
+            1. if i in blacklist else
+            distance_step_to_end[i]
             for i in range(num_options)
         ])
 

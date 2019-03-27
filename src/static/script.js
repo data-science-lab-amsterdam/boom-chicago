@@ -22,7 +22,7 @@ var handleResults = function(response)
 
 var showResults = function(data, key)
 {
-    var delay = 1500;
+    var delay = 1000;
 
     showDynamicPath(data[key], delay);
 
@@ -123,7 +123,7 @@ var init = function()
 {
     var container = document.getElementById('starting-images-container');
     var html = '<div class="columns">';
-    var num_per_row = Math.ceil(starting_images.length/3);
+    var num_per_row = Math.ceil(starting_images.length/2);
     var i = 0;
     starting_images.forEach(function(item) {
         i += 1;

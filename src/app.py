@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 PATHFINDER_DISTANCE_FUNC = 'mixed'
 PATHFINDER_END_MODE = 'closest'
-PATHFINDER_PATH_LENGTH = 8
+PATHFINDER_PATH_LENGTH = 10
 
 
 def get_start_images():

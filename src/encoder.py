@@ -47,9 +47,9 @@ def main(subset):
         dirname = f'images_{namepart}'
         if namepart in ['pretty', 'ugly']:
             dirname = f'images_end_{namepart}_cropped'
-        images = list(get_files(f'./storage_mount/{dirname}', ['*.jpg', '*.jpeg', '*.png']))
-        img_filenames = list(map(str, images))
-        encodings = get_encodings_ndarray(images)
+
+        img_filenames = [str(f) for f in get_files(f'./storage_mount/{dirname}', ['*.jpg', '*.jpeg', '*.png'])]
+        encodings = get_encodings_ndarray(img_filenames)
         joblib.dump(img_filenames, f'./data/processed/image_filenames_{namepart}.pickle')
         joblib.dump(encodings, f'./data/processed/face_encodings_{namepart}.pickle')
 
