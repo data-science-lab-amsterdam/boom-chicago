@@ -4,5 +4,7 @@ numpy>=1.16.0
 flask
 face-recognition
 scikit-learn
+werkzeug
+pillow
 gunicorn
 tqdm

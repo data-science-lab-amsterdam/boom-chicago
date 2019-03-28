@@ -5,6 +5,7 @@ from src.standardize_images import main as standardize_image
 from src.encoder import get_encoding
 from src.pathfinder import Pathfinder
 
+
 def main(image_dir, image_filename):
     output_dir = './storage_mount/images_start_cropped/'
     enc_start = get_encoding(image_dir + image_filename)
@@ -15,11 +16,11 @@ def main(image_dir, image_filename):
         standardized_image_dir = output_dir + image_filename
 
         enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
-        enc_inter = joblib.load('./data/processed/face_encodings_inter.pickle')
+        enc_inter = joblib.load('./data/processed/face_encodings_intermediate.pickle')
         enc_ugly = joblib.load('./data/processed/face_encodings_ugly.pickle')
 
         img_filenames_pretty = joblib.load('./data/processed/image_filenames_pretty.pickle')
-        img_filenames_inter = joblib.load('./data/processed/image_filenames_inter.pickle')
+        img_filenames_inter = joblib.load('./data/processed/image_filenames_intermediate.pickle')
         img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
 
         pf = Pathfinder(enc_start, enc_inter, enc_pretty,
@@ -38,4 +39,6 @@ def main(image_dir, image_filename):
     else:
         print('No face found in input image')
 
-main(image_dir = '/Users/gijsromme/Downloads/', image_filename = 'cappy_test.jpg')
+
+if __name__ == '__main__':
+    main(image_dir='/Users/gijsromme/Downloads/', image_filename='cappy_test.jpg')

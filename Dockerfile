@@ -1,5 +1,8 @@
 FROM dalloriam/python-dlib
 
+LABEL maintainer="robert.vanstraalen@datasciencelab.nl"
+
+# web server root
 WORKDIR /home/site/wwwroot
 
 # install required packages
@@ -10,10 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy all files
 COPY . .
 
-
+# expose port 8000
 EXPOSE 8000
 
 # start flask app
-#ENTRYPOINT ["python"]
-#CMD ["src/app.py"]
 CMD gunicorn -b :8000 src.app:app

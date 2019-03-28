@@ -10,7 +10,7 @@ class Pathfinder:
     def __init__(self, encodings_start, encodings_inter, encodings_end,
                  filenames_start, filenames_inter, filenames_end,
                  distance_func='cosine'):
-        self.op_counter = 0;
+        self.op_counter = 0
         self.encodings_start = encodings_start
         self.encodings_inter = encodings_inter
         self.encodings_end = encodings_end
@@ -80,21 +80,38 @@ class Pathfinder:
         logging.info(f'Smallest distance: {distance_from_to_step.min()}')
         distance_step_to_end = self.distance_func(enc_end, self.encodings_inter)[0]
         num_options = self.encodings_inter.shape[0]
+        # set blacklisted items to high distance in order to exclude them
         distance_from_to_step = np.array([
             1. if i in blacklist else
             distance_from_to_step[i]
             for i in range(num_options)
         ])
-
-        suitable_next_steps_idxs = [idx[0] for idx in np.argwhere(np.logical_and(np.less(distance_from_to_step, distance_to_end),
-                                                                            np.less(distance_step_to_end, distance_to_end)))]
+        # set blacklisted items to high distance in order to exclude them
+        distance_step_to_end = np.array([
+            1. if i in blacklist else
+            distance_step_to_end[i]
+            for i in range(num_options)
+        ])
+        # find all items 'between' current and end
+        suitable_next_steps_idxs = [
+            idx[0] for idx in np.argwhere(
+                np.logical_and(
+                    np.less(distance_from_to_step, distance_to_end),
+                    np.less(distance_step_to_end, distance_to_end)
+                )
+            )
+        ]
 
         if len(suitable_next_steps_idxs):
             if len(suitable_next_steps_idxs) > 1:
-                suitable_next_steps_weighted_distances = [self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha) for i in suitable_next_steps_idxs]
+                suitable_next_steps_weighted_distances = [
+                    self._evaluate_step(distance_from_to_step[i], distance_step_to_end[i], alpha)
+                    for i in suitable_next_steps_idxs
+                ]
                 idx_best_from_suitable = np.argmin(suitable_next_steps_weighted_distances)
                 idx_best = suitable_next_steps_idxs[idx_best_from_suitable]
-                logging.info(f'Smallest weighed distance: {suitable_next_steps_weighted_distances[idx_best_from_suitable]}')
+                dist_best = suitable_next_steps_weighted_distances[idx_best_from_suitable]
+                logging.info(f'Smallest weighed distance: {dist_best}')
             else:
                 idx_best = suitable_next_steps_idxs[0]
             enc_next_step = self._get_encoding(self.encodings_inter, idx_best)
@@ -172,7 +189,7 @@ class Pathfinder:
             # find next step
             idx_next, enc_next, distance = self._find_next_step(enc_from, enc_end, blacklist=path_idx, alpha=alpha)
 
-            if idx_next != None:
+            if idx_next is not None:
                 # Store obtained results
                 distances.append(distance)
                 path_idx.append(idx_next)
@@ -259,13 +276,13 @@ if __name__ == '__main__':
 
     enc_start = joblib.load('./data/processed/face_encodings_start.pickle')
     enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
-    enc_inter = joblib.load('./data/processed/face_encodings_inter.pickle')
+    enc_inter = joblib.load('./data/processed/face_encodings_intermediate.pickle')
     enc_ugly = joblib.load('./data/processed/face_encodings_ugly.pickle')
 
     # load file names
     img_filenames_start = joblib.load('./data/processed/image_filenames_start.pickle')
     img_filenames_pretty = joblib.load('./data/processed/image_filenames_pretty.pickle')
-    img_filenames_inter = joblib.load('./data/processed/image_filenames_inter.pickle')
+    img_filenames_inter = joblib.load('./data/processed/image_filenames_intermediate.pickle')
     img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
 
     pf = Pathfinder(enc_start, enc_inter, enc_pretty,
