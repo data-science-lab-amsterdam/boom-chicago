@@ -14,14 +14,44 @@
 
     <link rel="shortcut icon" href="/static/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
+<nav class="navbar is-light" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="https://boomchicago.nl">
+            <img src="/static/logo-boom-chicago.png" height="120">
+        </a>
+        <a class="navbar-item" href="https://datasciencelab.nl/">
+            <img src="/static/logo-datasciencelab.png" height="120">
+        </a>
 
-<div class="container is-fluid">
-    <a href="/upload">Upload new picture</a>
-</div>
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <span class="navbar-item">AI look-alike finder</span>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a class="button is-primary" href="/upload">
+                        <i class="fas fa-upload"></i> &nbsp; Upload new picture
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</nav>
 
 <div id="bg-container1">
     <div class="container is-fluid">
@@ -34,24 +64,6 @@
     <div id="results-container-ugly" class="results-container"></div>
     <div id="results-container-pretty" class="results-container"></div>
 </div>
-
-<footer class=footer">
-    <div class="columns vcenter">
-        <div class="column"></div>
-        <div class="column">
-            <figure class="image">
-                <img src="/static/logo-boom-chicago.png">
-            </figure>
-        </div>
-        <div class="column"></div>
-        <div class="column">
-            <figure class="image">
-                <img src="/static/logo-datasciencelab.png">
-            </figure>
-        </div>
-        <div class="column"></div>
-    </div>
-</footer>
 
 </body>
 </html>

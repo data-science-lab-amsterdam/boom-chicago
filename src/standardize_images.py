@@ -67,8 +67,21 @@ def resize_to_ratio(image_width, image_length):
         top = max(top - round(diff / 2), 0)
 
 
-def main(image_dir, output_dir, image_filename):
+def get_files(path, patterns):
+    """
+    Get a list of all filenames in a certain path with allowed extensions
+    """
+    files = []
+    for p in patterns:
+        files.extend(Path(path).rglob(p))
+    return files
 
+
+def main(image_dir, output_dir, image_filename):
+    """
+    Read an image, find a face, crop & resize, save new image
+    """
+    print(f'Processing image: {image_filename}')
     image = face_recognition.load_image_file(Path(image_dir) / image_filename)
     image_length, image_width = image.shape[:2]
 
@@ -97,11 +110,10 @@ def main(image_dir, output_dir, image_filename):
 
 
 def main_loop(images_dir, output_dir):
-    images_list = os.listdir(images_dir)
-    images_list = [image for image in images_list if not image.startswith('.DS')]
+    image_paths = get_files(images_dir, ['*.jpg', '*.jpeg', '*.png'])
+    image_names = [f.name for f in image_paths]
 
-    # Run script (I'm not familiar with the 'if name == main' stuff yet)
-    for image_filename in images_list:
+    for image_filename in image_names:
         main(images_dir, output_dir, image_filename)
 
 

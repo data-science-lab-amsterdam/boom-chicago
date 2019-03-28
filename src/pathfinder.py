@@ -92,7 +92,7 @@ class Pathfinder:
             distance_step_to_end[i]
             for i in range(num_options)
         ])
-
+        # find all items 'between' current and end
         suitable_next_steps_idxs = [
             idx[0] for idx in np.argwhere(
                 np.logical_and(

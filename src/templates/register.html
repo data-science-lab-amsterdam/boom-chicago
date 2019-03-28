@@ -7,6 +7,7 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='anime.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+    <script type="text/javascript" src="https://unpkg.com/scrollreveal@4"></script>
 
     <link rel="shortcut icon" href="/static/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bulma.min.css') }}">
@@ -68,6 +69,13 @@
         <div class="column"></div>
     </div>
 </footer>
+
+<script>
+    ScrollReveal().reveal('h3');
+    ScrollReveal().reveal('p');
+    ScrollReveal().reveal('.box');
+</script>
+
 
 </body>
 </html>

@@ -6,7 +6,7 @@ from sklearn.externals import joblib
 import logging
 
 
-def get_encoding(filename):
+def get_encoding(filename, margin=0):
 
     # load the image
     img_rgb = face_recognition.load_image_file(filename)
@@ -17,6 +17,10 @@ def get_encoding(filename):
         logging.error(f'No face found in image {filename}')
         face_encoding = np.zeros(128)
     else:
+        if margin > 0:
+            face_locations = [
+                (t-margin, r+margin, b+margin, l-margin) for (t, r, b, l) in face_locations
+            ]
         # get face encoding (of 1st face found in image)
         face_encoding = face_recognition.face_encodings(img_rgb, known_face_locations=face_locations)[0]
 
@@ -56,4 +60,4 @@ def main(subset):
 
 if __name__ == '__main__':
     #main(subset=['start', 'intermediate', 'pretty', 'ugly'])
-    main(subset=['start', 'pretty', 'ugly'])
+    main(subset=['pretty', 'ugly'])

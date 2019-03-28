@@ -14,12 +14,46 @@
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script>
 
-    function uploadFile(myFile) {
-        var file = myFile.files[0];
-        var filename = file.name;
-        $("#filename-label").html(filename);
-        photo_submitted = true;
-    }
+        $(function() {
+            $('[type="date"]').prop('min', function(){
+                return new Date().toJSON().split('T')[0];
+            });
+
+            // validate the form
+            $("#uploadForm").submit(function(event) {
+                var date = $("#showDate").val();
+                var linkedin = $("#linkedin").val();
+                var photo = $("#photo").val();
+                var terms = $("#terms").is(":checked");
+
+                if (!terms) {
+                    $("#termsLabel").addClass("has-text-danger");
+                }
+
+                if (photo == "") {
+                    $(".file-name").addClass("has-text-danger");
+                }
+
+                if (!terms || photo == "") {
+                    event.preventDefault();
+                }
+            });
+
+            $("#terms").change(function() {
+                $("#termsLabel").removeClass("has-text-danger");
+            });
+
+        });
+
+        function uploadFile(myFile) {
+            $(".file-name").removeClass("has-text-danger");
+
+            var file = myFile.files[0];
+            var filename = file.name;
+            $("#filename-label").html(filename);
+            photo_submitted = true;
+
+        }
 
     </script>
 
@@ -31,7 +65,7 @@
             <div class="container has-text-centered">
                 <div class="column is-8 is-offset-2">
                     <h3 class="title has-text-grey">Boom Chicago</h3>
-                    <p class="subtitle has-text-grey">Great. Our show is all about Artificial Intelligence and we’d like to show you where AI is today. Upload a picture here where you are the only person in the photo (or the obviously main and central person.</p>
+                    <p class="subtitle has-text-grey">Our show is all about Artificial Intelligence and we’d like to show you where AI is today. Upload a picture here where you are the only person in the photo (or the obviously main and central person.</p>
                     <p class="subtitle has-text-grey">We also ask you to submit the link to your LinkedIn profile. Our AI will then use your profile plus things it can find on the web to make a personality profile of you. This takes about an hour and is included in your ticket price. Be prepared to be impressed.
                         In one of the scenes in our show, we will demonstrate that there are no ‘right’ answers with AI. It all depends how you program it. We will take guest photos and analyse their face and tell them which celebrity they most resemble. We will give you the ‘path’ the AI took to get there. It is a nice (free) souvenir.
                     </p>
@@ -39,6 +73,15 @@
                 <div class="column is-4 is-offset-4">
                     <div class="box">
                         <form action="/show-path" id="uploadForm" method="POST" enctype="multipart/form-data">
+
+                            <div class="field">
+                                <label class="label">What date are you coming to Boom Chicago?</label>
+                                <div class="control is-expanded animated" id="dateControl">
+                                    <input class="input" type="date" placeholder="DD-MM-YYYY" id="showDate" name="showDate">
+                                </div>
+                                <p class="help">Leave empty if you're not coming (yet).</p>
+                            </div>
+
                             <div class="field">
                                 <input class="input" type="text" placeholder="Your LinkedIn profile">
                             </div>
@@ -63,12 +106,10 @@
                             </div>
 
                             <div class="field">
-
                                 <label class="checkbox">
                                     <input type="checkbox">
                                     I agree to the <a href="#">terms and conditions</a>
                                 </label>
-
                             </div>
 
                             <button class="button is-block is-info is-large is-fullwidth">Upload my picture</button>
