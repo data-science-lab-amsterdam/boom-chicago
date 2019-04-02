@@ -58,6 +58,14 @@ def main(subset):
         joblib.dump(encodings, f'./data/processed/face_encodings_{namepart}.pickle')
 
 
+def main_custom(dirname):
+    img_filenames = [str(f) for f in get_files(f'./storage_mount/{dirname}', ['*.jpg', '*.jpeg', '*.png'])]
+    encodings = get_encodings_ndarray(img_filenames)
+    joblib.dump(img_filenames, f'./data/processed/image_filenames_{dirname}.pickle')
+    joblib.dump(encodings, f'./data/processed/face_encodings_{dirname}.pickle')
+
+
 if __name__ == '__main__':
     #main(subset=['start', 'intermediate', 'pretty', 'ugly'])
-    main(subset=['pretty', 'ugly'])
+    #main(subset=['pretty', 'ugly'])
+    main_custom('stylegan')

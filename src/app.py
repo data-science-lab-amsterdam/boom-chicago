@@ -55,14 +55,16 @@ def get_pathfinder(distance_func='mixed', end='ugly'):
     """
     # load face encodings
     enc_start = joblib.load('./data/processed/face_encodings_start.pickle')
+    # enc_inter = joblib.load('./data/processed/face_encodings_intermediate.pickle')
+    enc_inter = joblib.load('./data/processed/face_encodings_stylegan.pickle')
     enc_pretty = joblib.load('./data/processed/face_encodings_pretty.pickle')
-    enc_inter = joblib.load('./data/processed/face_encodings_intermediate.pickle')
     enc_ugly = joblib.load('./data/processed/face_encodings_ugly.pickle')
 
     # load file names
     img_filenames_start = joblib.load('./data/processed/image_filenames_start.pickle')
+    # img_filenames_inter = joblib.load('./data/processed/image_filenames_intermediate.pickle')
+    img_filenames_inter = joblib.load('./data/processed/image_filenames_stylegan.pickle')
     img_filenames_pretty = joblib.load('./data/processed/image_filenames_pretty.pickle')
-    img_filenames_inter = joblib.load('./data/processed/image_filenames_intermediate.pickle')
     img_filenames_ugly = joblib.load('./data/processed/image_filenames_ugly.pickle')
 
     pf = Pathfinder(enc_start,
